@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/placed-orders.css" />
+    <title>My Placed Orders</title>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav>
+        <a href="/products" class="logo">Logo</a>
+        <ul>
+            {{#if isAdmin}}
+            <li><a href="add-product">+ Add Product</a></li>
+            <li><a href="users">View Users</a></li>
+            {{/if}}
+            <li><a href="/products">Home</a></li>
+        </ul>
+    </nav>
+
+    <main class="orders-page">
+        <header class="page-header">
+            <h1>My Placed <span>Orders</span></h1>
+        </header>
+
+        {{#if placedOrders.length}}
+            <div class="orders-list">
+                {{#each placedOrders}}
+                <div class="order-card" data-status="{{this.status}}">
+                    <!-- Order Header -->
+                    <div class="order-card-header">
+                        <div>
+                            <div class="order-id">Order ID: <span>{{this._id}}</span></div>
+                            <div class="order-date">Placed on: {{this.createdAt}}</div>
+                        </div>
+
+                        <span class="status-badge" data-status="{{this.status}}">{{this.status}}</span>
+                    </div>
+
+                    <!-- Items List -->
+                    <ul class="order-items">
+                        {{#each this.items}}
+                        <li class="order-item">
+                            {{#if this.product.image}}
+                                <img src="{{this.product.image}}" alt="{{this.product.name}}">
+                            {{/if}}
+                            <div class="order-item-info">
+                                <div class="order-item-name">{{this.product.name}}</div>
+                                <div class="order-item-meta">Qty: {{this.quantity}}</div>
+                            </div>
+                            <div class="order-item-price">₹{{this.priceAtPurchase}}</div>
+                        </li>
+                        {{/each}}
+                    </ul>
+
+                    <!-- Order Footer -->
+                    <div class="order-card-footer">
+                        <span class="order-total-label">Total Amount</span>
+                        <span class="order-total-amount">₹{{this.totalAmount}}</span>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        {{else}}
+            <div class="empty-orders">
+                <div class="empty-icon">📦</div>
+                <h2>No Orders Yet</h2>
+                <p>You haven't placed any orders in the system.</p>
+                <a href="/products" class="shop-now-btn" style="display:inline-block; margin-top:16px; background:var(--primary); color:#fff; padding:10px 24px; border-radius:100px; text-decoration:none; font-weight:600;">Start Shopping</a>
+            </div>
+        {{/if}}
+    </main>
+
+    <!-- Script to dynamically apply card status classes -->
+    <script>
+        document.querySelectorAll('.order-card').forEach(card => {
+            const status = card.getAttribute('data-status');
+            if (status) {
+                card.classList.add(status.toLowerCase());
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/icons/favicon.jpg" type="image/x-icon">
+    <title>{{product.name}} - Product Details</title>
+    <link rel="stylesheet" href="/styles/single-product.css">
+</head>
+<body>
+
+    <nav>
+        <a href="/products" class="logo">Logo</a>
+        <ul>
+            {{#if isAdmin}}
+            <li><a href="add-product">+ Add Product</a></li>
+            <li><a href="users">View Users</a></li>
+            {{/if}}
+            <li><a href="/products">Home</a></li>
+            <li><a href="/cart">Cart 🛒</a></li>
+        </ul>
+    </nav>
+
+    <main class="product-detail">
+        <!-- Breadcrumb / Back link -->
+        <div class="breadcrumb">
+            <a href="/products">Home</a> / <span>{{product.name}}</span>
+        </div>
+
+        <!-- Image Gallery Section -->
+        <div class="product-gallery">
+            <div class="main-image" id="mainImageWrapper">
+                {{#if product.images.[0]}}
+                    <img src="/uploads/{{product.name}}/{{product.images.[0]}}" alt="{{product.name}}" id="mainProductImage">
+                {{else}}
+                    <img src="/images/placeholder.png" alt="No image available" id="mainProductImage">
+                {{/if}} 
+            </div>
+
+            <div class="thumb-strip">
+                {{#each product.images}}
+                    <div class="thumb {{#if @first}}active{{/if}}" onclick="changeImage(this, '/uploads/{{../product.name}}/{{this}}')">
+                        <img src="/uploads/{{../product.name}}/{{this}}" alt="Thumbnail">
+                    </div>
+                {{/each}} 
+            </div>
+        </div>
+
+        <!-- Details Section -->
+        <div class="product-details">
+            <span class="detail-badge">{{product.type}}</span>
+            <h1>{{product.name}}</h1>
+            
+            <div class="detail-price">
+                <span class="currency">₹</span>{{product.price}}
+            </div>
+
+            <div class="product-description">
+                <h3>Description</h3>
+                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quam natus alias optio assumenda rerum tempora? Necessitatibus non architecto libero blanditiis ipsum quis quam aut, commodi corporis tempora nulla odio nihil. Impedit id facere sunt a eum nisi eveniet alias, est fugit dolorem obcaecati pariatur dignissimos perferendis saepe ducimus odio soluta omnis odit ad ab asperiores beatae explicabo! Quam, ea dignissimos!</p>
+            </div>
+
+            <form action="/addToCart" method="get" class="action-row">
+                <input type="text" name="productId" id="pid" hidden value="{{product._id}}">
+                <input type="text" name="userId" id="uid" hidden value="{{user.userId}}">
+                
+                <!-- Quantity Controls -->
+                <div class="qty-controls">
+                    <button type="button" class="qty-btn" onclick="decrementQuantity()">-</button>
+                    <span class="qty-value" id="qtyDisplay">1</span>
+                    <button type="button" class="qty-btn" onclick="incrementQuantity()">+</button>
+                </div>
+                <input type="number" name="quantity" id="quantity" hidden value="1">
+
+                <button type="submit" class="btn-add-cart">🛒 Add To Cart</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        let quantity = 1;
+        const qtyDisplay = document.getElementById('qtyDisplay');
+        const quantityInput = document.getElementById('quantity');
+
+        function incrementQuantity() {
+            quantity++;
+            updateQuantityUI();
+        }
+
+        function decrementQuantity() {
+            if (quantity > 1) {
+                quantity--;
+            } else {
+                quantity = 1;
+            }
+            updateQuantityUI();
+        }
+
+        function updateQuantityUI() {
+            if (qtyDisplay) qtyDisplay.textContent = quantity;
+            if (quantityInput) quantityInput.value = quantity;
+        }
+
+        function changeImage(thumbElement, src) {
+            const mainImg = document.getElementById('mainProductImage');
+            if (mainImg) mainImg.src = src;
+
+            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+            thumbElement.classList.add('active');
+        }
+    </script>
+</body>
+</html>

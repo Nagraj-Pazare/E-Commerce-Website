@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/styles/admin-dashboard.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav>
+        <button class="menu-btn" onclick="handleMenu()">☰</button>
+        <a href="/products" class="logo">Logo</a>
+        <div class="nav-links">
+            {{#unless isAdmin}}
+            <a href="/cart" class="nav-btn"><button>Cart 🛒</button></a>
+            {{/unless}}
+        </div>
+    </nav>
+
+    <!-- Dashboard Main Wrapper -->
+    <div class="dashboard-wrapper">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section-label">Admin Menu</div>
+            {{!-- <a href="#" class="active" hidden></a> --}}
+            <a href="products">View All Products</a>
+            {{#if isAdmin}}
+            <a href="add-product">+ Add Product</a>
+            <a href="users">View All Users</a>
+            <a href="admin/orders">View All Orders</a>
+            {{/if}}
+
+            <form action="logout" method="get" style="width: 100%; margin-top: auto;">
+                <button type="submit" class="btn-logout" style="width: 100%;">Logout</button>
+            </form>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1>Admin <span>Dashboard</span></h1>
+                <p>Welcome back! Here is an overview of your platform metrics.</p>
+            </div>
+
+            <!-- Stat Cards Grid -->
+            <div class="stats-grid">
+                
+                <!-- Total Users Card -->
+                <div class="stat-card users-card">
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="label">Total Users</div>
+                        <div class="value">{{userCount}}</div>
+                        <a href="users" class="stat-link">View All Users →</a>
+                    </div>
+                </div>
+
+                <!-- Total Products Card -->
+                <div class="stat-card products-card">
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="label">Total Products</div>
+                        <div class="value">{{productCount}}</div>
+                        <a href="products" class="stat-link">View All Products →</a>
+                    </div>
+                </div>
+
+                <!-- Total Orders Card -->
+                <div class="stat-card orders-card">
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="label">Total Orders</div>
+                        <div class="value">{{orderCount}}</div>
+                        <a href="admin/orders" class="stat-link">View All Orders →</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Quick Management Actions Section -->
+            <div class="section-title">Quick Actions</div>
+            <div class="dashboard-actions">
+                <a href="add-product" class="action-card">
+                    <div class="icon">📦</div>
+                    <div class="text">
+                        <h3>Add Product</h3>
+                        <p>Create new item listing</p>
+                    </div>
+                </a>
+                <a href="users" class="action-card">
+                    <div class="icon">👥</div>
+                    <div class="text">
+                        <h3>Manage Users</h3>
+                        <p>View registered accounts</p>
+                    </div>
+                </a>
+                <a href="admin/orders" class="action-card">
+                    <div class="icon">🛒</div>
+                    <div class="text">
+                        <h3>Customer Orders</h3>
+                        <p>Track & update status</p>
+                    </div>
+                </a>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Script for mobile menu toggle -->
+    <script>
+        function handleMenu() {
+            const sidebar = document.querySelector(".sidebar");
+            if (sidebar) {
+                sidebar.classList.toggle("open");
+            }
+        }
+    </script>
+</body>
+</html>

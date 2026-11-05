@@ -1,0 +1,64 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register Page</title>
+    <link rel="stylesheet" href="styles/register.css" />
+  </head>
+  <body>
+    <div class="form-container">
+      <form action="register" method="POST">
+        <h3>Create Account</h3>
+
+        <div>
+          <label for="username">Username</label>
+          <input
+            type="text"
+            name="username"
+            id="username"
+            required
+            placeholder="johndoe"
+          />
+        </div>
+        <div>
+          <label for="role">Role</label>
+          <select name="role" id="role">
+            <option value="admin">Admin</option>
+            <option value="user">User</option>
+          </select>
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            required
+            placeholder="name@example.com"
+            title="Please enter a valid email address (e.g., name@domain.com)"
+            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+          />
+        </div>
+
+        <div>
+          <label for="password">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            required
+            placeholder="••••••••"
+            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+            title="Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)."
+          />
+        </div>
+
+        <button class="registerBtn" type="submit">Register</button>
+
+        <div class="form-footer">
+          <a href="/login">Already have an account? Login</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

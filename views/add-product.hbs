@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <link rel="stylesheet" href="/styles/add-product.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav>
+        <a href="/products" class="logo">Logo</a>
+        <div class="nav-links">
+            <div class="inp-container">
+                <form action="filtered-product" method="get" class="search-form">
+                    <input type="text" name="searchData" id="search-bar" placeholder="Enter Product Name">
+                    <button class="search-btn" type="submit">
+                        <img height="16px" src="/icons/search.png" alt="search">
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Wrapper -->
+    <div class="add-product-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-section-label">Navigation</div>
+            <a href="admin-dashboard">Admin Dashboard</a>
+            <a href="products">View All Products</a>
+            <a href="users">View All Users</a>
+            
+            <!-- Logout Button -->
+            <form action="logout" method="get" style="width: 100%; margin-top: auto;">
+                <button type="submit" class="btn-logout" style="width: 100%;">Logout</button>
+            </form>
+        </aside>
+
+        <!-- Main Content Form Area -->
+        <main class="main-content">
+            <div class="page-header">
+                <a href="/products" class="back-link">← Back to Products</a>
+                <h1>Add New <span>Product</span></h1>
+            </div>
+
+            <div class="form-card">
+                <div class="form-card-header">
+                    <div class="header-icon">📦</div>
+                    <div>
+                        <h2>Product Information</h2>
+                        <p>Fill in the details below to list a new item in your inventory.</p>
+                    </div>
+                </div>
+
+                <div class="form-card-body">
+                    <form action="products" method="POST" enctype="multipart/form-data">
+                        
+                        {{#if errorMessage}}
+                        <p class="error-msg">{{errorMessage}}</p>
+                        {{/if}}
+
+                        <div class="form-group">
+                            <label for="name">Product Name</label>
+                            <input type="text" name="name" id="name" placeholder="e.g. Wireless Headphones" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="type">Category / Type</label>
+                            <input type="text" name="type" id="type" placeholder="e.g. Electronics" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="price">Price (₹)</label>
+                            <input type="number" name="price" id="price" step="1" placeholder="e.g. 1499" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="images">Product Images</label>
+                            <input type="file" name="images" id="images" multiple required>
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="/products" class="btn-cancel">Cancel</a>
+                            <button class="btn-submit" type="submit">Add Product</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Responsive Sidebar Toggle Script (if needed) -->
+    <script>
+        function handleMenu() {
+            const sidebar = document.querySelector(".sidebar");
+            if (sidebar) {
+                sidebar.classList.toggle("open");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/admin-order.css">
+    <title>All Users Orders (Admin)</title>
+</head>
+<body>
+    <nav>
+        <a href="/products" class="logo">Admin Panel</a>
+        <ul>
+            <li>
+                <a href="/products">Home</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="admin-orders-wrapper">
+        <main class="main-content">
+            <header class="page-header">
+                <h1>All <span>Customer Orders</span></h1>
+            </header>
+
+            {{#if orders.length}}
+                <div class="orders-list">
+                    {{#each orders}}
+                    <div class="order-card" data-status="{{this.status}}">
+                        <!-- Order Header with User & Status Info -->
+                        <div class="order-card-header">
+                            <div>
+                                <div class="order-id">Order ID: <span>{{this._id}}</span></div>
+                                <div class="order-customer">
+                                    Customer: <strong>{{this.user.username}}</strong> ({{this.user.email}})
+                                </div>
+                                <div class="order-date">Placed on: {{this.createdAt}}</div>
+                            </div>
+
+                            <form action="/admin/update-status" method="GET" class="status-update-form">
+                                <label for="status-{{this._id}}">Status:</label>
+                                <select name="status" id="status-{{this._id}}" class="status-select">
+                                    <option value="{{this.status}}" disabled selected>{{this.status}}</option>
+                                    <option value="Placed">Placed</option>
+                                    <option value="Processing">Processing</option>
+                                    <option value="Shipped">Shipped</option>
+                                    <option value="Delivered">Delivered</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                                <input type="text" name="orderId" id="orderId-{{this._id}}" value="{{this._id}}" hidden>
+                                <button type="submit" class="btn-update-status">Update Status</button>
+                            </form>
+                        </div>
+
+                        <!-- Items List -->
+                        <ul class="order-items">
+                            {{#each this.items}}
+                            <li class="order-item">
+                                {{#if this.product.image}}
+                                    <img src="{{this.product.image}}" alt="{{this.product.name}}">
+                                {{/if}}
+                                <div class="order-item-info">
+                                    <div class="order-item-name">{{this.product.name}}</div>
+                                    <div class="order-item-meta">Qty: {{this.quantity}}</div>
+                                </div>
+                                <div class="order-item-price">₹{{this.priceAtPurchase}}</div>
+                            </li>
+                            {{/each}}
+                        </ul>
+
+                        <!-- Order Footer with Total Amount -->
+                        <div class="order-card-footer">
+                            <span class="order-total-label">Total Amount</span>
+                            <span class="order-total-amount">₹{{this.totalAmount}}</span>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+            {{else}}
+                <div class="empty-orders">
+                    <div class="empty-icon">📦</div>
+                    <h2>No Orders Found</h2>
+                    <p>There are currently no customer orders in the system.</p>
+                </div>
+            {{/if}}
+        </main>
+    </div>
+
+    <!-- Client-side script to apply status classes dynamically without needing backend helpers -->
+    <script>
+        document.querySelectorAll('.order-card').forEach(card => {
+            const status = card.getAttribute('data-status');
+            if (status) {
+                card.classList.add(status.toLowerCase());
+            }
+        });
+    </script>
+</body>
+</html>

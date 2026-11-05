@@ -1,0 +1,141 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Products Dashboard</title>
+  <link rel="shortcut icon" href="/icons/favicon.jpg" type="image/x-icon">
+  <link rel="stylesheet" href="styles/products.css">
+</head>
+
+<body>
+  <nav>
+    <a href="/products" class="logo">Logo</a>
+    
+    <!-- Search Bar Wrapper -->
+    <div class="search-wrapper">
+      <form action="filtered-product" method="get" class="search-form">
+        <input type="text" name="searchData" id="search-bar" placeholder="Enter Product Name" value="{{searchData}}">
+      </form>
+    </div>
+
+    <div class="nav-links">
+      {{#unless isAdmin}}
+      <a href="/cart" class="cart-btn">Cart 🛒</a>
+      {{/unless}}
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <!-- Sidebar Toggle Button for Mobile/Tablets -->
+    <button class="sidebar-toggle" onclick="handleMenu()">☰</button>
+
+    <!-- Sidebar Container -->
+    <aside class="sidebar">
+      <div class="sidebar-title">Menu</div>
+      <a href="products" class="sidebar-link active">View All Products</a>
+      {{#if isAdmin}}
+      <a href="admin-dashboard" class="sidebar-link">Admin Dashboard</a>
+      <a href="add-product" class="sidebar-link">+ Add Product</a>
+      <a href="users" class="sidebar-link">View All Users</a>
+      {{/if}}
+
+      <!-- Filter Card -->
+      <div class="filter-card">
+        <h3>Filter Products</h3>
+        <form action="filter-by" method="get">
+          <input type="text" name="searchData" id="searchData" value="{{searchData}}" hidden>
+          
+          <label for="price-filter">Price</label>
+          <select name="priceFilter" id="price-filter">
+            <option value="all">All</option>
+            <option value="hightolow">High To Low</option>
+            <option value="lowtohigh">Low To High</option>
+          </select>
+
+          <label for="type">Category</label>
+          <select name="type" id="type">
+            <option value="all">All</option>
+            <option value="mobile">Mobile</option>
+            <option value="laptop">Laptop</option>
+            <option value="webcam">Webcam</option>
+            <option value="electronic">Electronic</option>
+          </select>
+
+          <button type="submit" class="btn-filter">Apply Filter</button>
+          <a href="products" class="reset-btn">Reset Filters</a>
+        </form>
+      </div>
+
+      <!-- Logout Form -->
+      <form action="logout" method="get" class="logout-form">
+        <button type="submit" class="logout-btn">Logout</button>
+      </form>
+    </aside>
+
+    <!-- Main Content Grid -->
+    <main class="main-content">
+      <header class="page-header">
+        <h1>Product <span>Catalog</span></h1>
+        {{#if isAdmin}}
+        <a href="add-product" class="btn-primary">+ Add Product</a>
+        {{/if}}
+      </header>
+
+      <div class="products-grid">
+        {{#unless products}}
+        <div class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <h3>No products found</h3>
+          <p>We couldn't find anything matching your search. Try checking your spelling or searching for a different keyword!</p>
+          <a href="/products" class="btn-primary empty-reset-btn">View All Products</a>
+        </div>
+        {{/unless}}
+
+        {{#each products}}
+        <div class="product-card">
+          {{#each images}}
+            {{#if @first}}
+            <img src="/uploads/{{../name}}/{{this}}" alt="{{../name}}">
+            {{/if}}
+          {{/each}}
+
+          <div class="product-card-body">
+            <span class="type-badge">{{this.type}}</span>
+            <h3>{{this.name}}</h3>
+            <div class="product-price">${{this.price}}</div>
+
+            <!-- Product Action Buttons -->
+            <div class="product-actions">
+              {{#if ../isAdmin}}
+                <form action="update-product" method="POST" class="card-action-form">
+                  <input type="text" name="id" hidden value="{{this._id}}" />
+                  <button type="submit" class="btn-update">Update</button>
+                </form>
+                <form action="products/{{this._id}}?_method=DELETE" method="POST" class="card-action-form">
+                  <button type="submit" class="btn-delete">Delete</button>
+                </form>
+              {{else}}
+                <a href="product/{{this._id}}" class="btn-cart">Buy Now</a>
+              {{/if}}
+            </div>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function handleMenu() {
+      const sidebar = document.querySelector(".sidebar");
+      if (sidebar) {
+        sidebar.classList.toggle("open");
+      } else {
+        console.error("Sidebar element not found in the DOM!");
+      }
+    }
+  </script>
+</body>
+
+</html>

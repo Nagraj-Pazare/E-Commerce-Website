@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management Dashboard</title>
+    <link rel="stylesheet" href="/styles/users.css">
+</head>
+<body>
+
+    <nav>
+        <a href="/products" class="logo">Logo</a>
+        
+        <!-- Search bar wrapper -->
+        <div class="search-wrapper">
+            <form action="filtered-user" method="get" class="search-form">
+                <input type="text" name="searchData" id="search-bar" placeholder="Enter User's Name" value="{{searchData}}">
+                <button class="search-btn" type="submit">
+                    <img height="18px" src="/icons/search.png" alt="search-icon">
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="users-wrapper">
+        <!-- Sidebar Toggle Button for Mobile -->
+        <button class="sidebar-toggle-btn" onclick="handleMenu()">☰</button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section-label">Navigation</div>
+            <a href="products">View All Products</a>
+            <a href="admin-dashboard">Admin Dashboard</a>
+
+            <div class="sidebar-section-label filter-label-spacing">Filter Users</div>
+            <div class="filter-wrapper">
+                <form action="filter-user-by" method="get" class="filter-form">
+                    <label for="type" class="sort-label">Sort Users By Name</label>
+                    <select name="sortUserBy" id="type" class="filter-select">
+                        <option value="atoz" class="filter-option">A-Z</option>
+                        <option value="ztoa" class="filter-option">Z-A</option>
+                    </select>
+                    <button class="filter-btn" type="submit">Filter</button>
+                </form>
+            </div>
+
+            <!-- Logout Form -->
+            <form action="logout" method="get" class="logout-form">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <h1>User Management <span>Dashboard</span></h1>
+            </header>
+
+            <div class="users-grid">
+                {{#each users}}
+                <div class="user-card" data-role="{{this.role}}">
+                    <div class="user-avatar" data-username="{{this.username}}">
+                        <!-- Initial filled dynamically via JS -->
+                    </div>
+                    <div class="user-info">
+                        <h3 class="user-name">{{this.username}}</h3>
+                        <span class="role-badge">{{this.role}}</span>
+                        <p class="user-email">{{this.email}}</p>
+                    </div>
+                    
+                    <div class="user-card-footer">
+                        <form action="delete-user" method="POST" class="delete-user-form">
+                            <input type="text" name="uid" id="uid-{{this._id}}" hidden value="{{this._id}}">
+                            <button type="submit" class="btn-delete-user">Delete User</button>
+                        </form>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function handleMenu() {
+            const sidebar = document.querySelector(".sidebar");
+            if (sidebar) {
+                sidebar.classList.toggle("open");
+            } else {
+                console.error("Sidebar element not found in the DOM!");
+            }
+        }
+
+        // Dynamically compute avatar initials and role styling classes
+        document.querySelectorAll('.user-card').forEach(card => {
+            const role = card.getAttribute('data-role');
+            if (role) {
+                const badge = card.querySelector('.role-badge');
+                if (badge) badge.classList.add(role.toLowerCase());
+            }
+
+            const avatarDiv = card.querySelector('.user-avatar');
+            const username = avatarDiv ? avatarDiv.getAttribute('data-username') : '';
+            if (username && avatarDiv) {
+                avatarDiv.textContent = username.charAt(0).toUpperCase();
+            }
+        });
+    </script>
+</body>
+</html>

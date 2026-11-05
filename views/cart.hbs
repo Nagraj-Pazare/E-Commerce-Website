@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="/styles/cart.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav>
+        <a href="/products" class="logo">Logo</a>
+        <ul>
+            {{#if isAdmin}}
+            <li><a href="add-product">+ Add Product</a></li>
+            <li><a href="users">View Users</a></li>
+            {{/if}}
+            <li><a href="/products">Home</a></li>
+            <li><a href="placed-orders">Placed Orders</a></li>
+        </ul>
+    </nav>
+
+    <!-- Cart Page Layout -->
+    <div class="cart-page">
+        <h1>Your Shopping <span>Cart</span></h1>
+
+        {{#unless cartItems}}
+        <div class="cart-empty">
+            <div class="empty-icon">🛒</div>
+            <h2>Your cart is empty</h2>
+            <p>Looks like you haven't added anything to your cart yet. Explore our products and find something you love!</p>
+            <a href="/products">Start Shopping</a>
+        </div>
+        {{/unless}}
+
+        {{#if cartItems}}
+        <!-- Left Column: Cart Items -->
+        <div class="cart-items">
+            {{#each cartItems}}
+            <div class="cart-item">
+                <img src="/uploads/{{this.productId.name}}/{{this.productId.images.[0]}}" alt="Product Image">
+                
+                <div class="cart-item-info">
+                    <h3>{{this.productId.name}}</h3>
+                    <span class="item-type">{{this.productId.type}}</span>
+                    <div class="item-price">₹{{this.productId.price}}</div>
+                </div>
+
+                <div class="qty-controls">
+                    <form action="/update-quantity" method="get">
+                        <button name="update" value="decrement" type="submit" class="qty-btn">-</button>
+                        <input type="text" name="productId" hidden value="{{this.productId._id}}">
+                        <span class="qty-value">{{this.quantity}}</span>
+                        <button name="update" value="increment" type="submit" class="qty-btn">+</button>
+                    </form>
+                </div>
+
+                <form action="remove-item" method="get">
+                    <input type="text" name="productId" hidden value="{{this.productId._id}}">
+                    <button type="submit" class="remove-btn">Remove</button>
+                </form>
+            </div>
+            {{/each}}
+        </div>
+
+        <!-- Right Column: Cart Summary Sidebar -->
+        <div class="cart-summary">
+            <div class="cart-summary-inner">
+                <h2>Order Summary</h2>
+                <div class="summary-row">
+                    <span>Total Items</span>
+                    <span>{{cartItems.length}}</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total Amount</span>
+                    <span class="amount">₹<span id="totalPrice">0.00</span></span>
+                </div>
+                <button type="button" id="checkout-btn" onclick="handleCheckout(event)" class="checkout-btn">Proceed to Checkout</button>
+            </div>
+        </div>
+        {{/if}}
+    </div>
+
+    <!-- Frontend Script for Total Calculation & Checkout -->
+    <script>
+        const cartItems = {{{json cartItems}}};
+        let totalPrice = cartItems.reduce((acc, curr) => {
+            const itemPrice = curr.productId ? curr.productId.price : 0;
+            const itemQuantity = curr.quantity || 0;
+            return acc + (itemPrice * itemQuantity);
+        }, 0);
+
+        const totalSpan = document.querySelector('#totalPrice');
+        if (totalSpan) {
+            totalSpan.textContent = totalPrice.toLocaleString('en-IN'); 
+        }
+
+        async function handleCheckout(event) { 
+            if (event) event.preventDefault();
+
+            const checkoutBtn = document.getElementById("checkout-btn");
+            if (checkoutBtn) checkoutBtn.disabled = true;
+
+            try {
+                const formattedItems = cartItems.map(cartItem => ({
+                    product: typeof cartItem.productId === 'object' ? cartItem.productId._id : cartItem.productId, 
+                    quantity: cartItem.quantity
+                }));
+
+                const response = await fetch("http://localhost:3000/checkout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem("token")}` 
+                    },
+                    body: JSON.stringify({ items: formattedItems })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || "Something went wrong");
+                }
+                
+                window.location.href = "/placed-orders";
+
+            } catch (error) {
+                if (checkoutBtn) checkoutBtn.disabled = false;
+                console.error("Checkout error:", error.message);
+                alert(`Failed to place order: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

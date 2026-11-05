@@ -1,0 +1,276 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --accent: #22d3ee;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --dark: #0f172a;
+  --surface: #1e293b;
+  --surface-2: #334155;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border: rgba(255, 255, 255, 0.1);
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --radius: 16px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Inter', sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Animated background gradient pattern */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(34, 211, 238, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Decorative floating orb 1 */
+.blob-1 {
+  position: fixed;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+  top: -120px;
+  left: -100px;
+  animation: floatBlob 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(40px);
+}
+
+/* Decorative floating orb 2 */
+.blob-2 {
+  position: fixed;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.2) 0%, transparent 70%);
+  bottom: -80px;
+  right: -60px;
+  animation: floatBlob 10s ease-in-out infinite reverse;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(50px);
+}
+
+/* Decorative floating orb 3 */
+.blob-3 {
+  position: fixed;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+  top: 60%;
+  left: 10%;
+  animation: floatBlob 12s ease-in-out infinite 2s;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(30px);
+}
+
+@keyframes floatBlob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(30px, -20px) scale(1.05); }
+  66%       { transform: translate(-20px, 15px) scale(0.97); }
+}
+
+/* Hero card */
+.hero-container {
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 56px 64px;
+  text-align: center;
+  max-width: 520px;
+  width: 90%;
+  box-shadow:
+    0 0 0 1px rgba(99, 102, 241, 0.15),
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 80px rgba(99, 102, 241, 0.08);
+  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Store icon / badge above heading */
+.hero-container::before {
+  content: '◈';
+  display: block;
+  font-size: 2.4rem;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.hero-container h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.15;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+  /* Glowing text effect */
+  text-shadow: 0 0 40px rgba(99, 102, 241, 0.4);
+}
+
+/* Gradient accent word via span — fallback for plain text */
+.hero-container h1 span {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-container p {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  margin-bottom: 36px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* Accent divider */
+.hero-container p::after {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 100px;
+  margin: 20px auto 0;
+}
+
+/* Button group */
+.btn-group {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 32px;
+  border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.3px;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0);
+  transition: background 0.3s ease;
+  border-radius: inherit;
+}
+
+.btn:hover::after {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Primary button — gradient */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  border: none;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.55);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* Secondary button — glass outline */
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(34, 211, 238, 0.2);
+}
+
+.btn-secondary:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .hero-container {
+    padding: 40px 28px;
+  }
+
+  .hero-container h1 {
+    font-size: 1.8rem;
+  }
+
+  .btn-group {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

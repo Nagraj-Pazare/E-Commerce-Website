@@ -1,0 +1,61 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Page</title>
+    <link rel="stylesheet" href="styles/login.css" />
+  </head>
+  <body>
+    <div class="form-container">
+      <form action="login" method="POST">
+        <a href="/" style="text-decoration: none;"><button
+            id="homeBtn"
+            type="button"
+          ><span>&leftarrow;</span>Home</button></a>
+        <h3>Welcome Back</h3>
+        {{#if errorMessage}}
+          <p style="color: red; font-weight: bold;">{{errorMessage}}</p>
+        {{/if}}
+        <div>
+          <label for="email">Email</label>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            required
+            placeholder="name@example.com"
+            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+            title="Please enter a valid email address (e.g., name@domain.com)"
+          />
+        </div>
+
+        <div>
+          <label for="password">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            required
+            placeholder="••••••••"
+            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+            title="Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)."
+          />
+        </div>
+        <div>
+          <label for="role">Role</label>
+          <select name="role" id="role">
+            <option value="admin">Admin</option>
+            <option value="user">User</option>
+          </select>
+        </div>
+
+        <button class="loginBtn" type="submit">Login</button>
+
+        <div class="urls">
+          <a href="/forget-password">Forgot password?</a>
+          <a href="/register">Register</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

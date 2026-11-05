@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP</title>
+    <link rel="stylesheet" href="/styles/verifyOtp.css">
+</head>
+<body>
+    <div class="form-container">
+        <form action="verify-reset-otp" method="POST">
+            <h3>Verify OTP</h3>
+           
+            <div>
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" required placeholder="name@example.com">
+            </div>
+
+            <div>
+                <label for="otp">Enter OTP</label>
+                <input type="text" name="otp" id="otp" required placeholder="1234" maxlength="6">
+            </div>
+
+            <button class="verifyBtn" type="submit">Verify OTP</button>
+            
+            <div class="form-footer">
+                <a href="/login">Back to Login</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
