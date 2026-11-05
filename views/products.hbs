@@ -12,6 +12,7 @@
   <nav>
     <a href="/products" class="logo">Logo</a>
     
+      
     <!-- Search Bar Wrapper -->
     <div class="search-wrapper">
       <form action="filtered-product" method="get" class="search-form">
@@ -19,11 +20,11 @@
       </form>
     </div>
 
+    {{#unless isAdmin}}
     <div class="nav-links">
-      {{#unless isAdmin}}
       <a href="/cart" class="cart-btn">Cart 🛒</a>
-      {{/unless}}
     </div>
+      {{/unless}}
   </nav>
 
   <div class="page-wrapper">
@@ -48,6 +49,7 @@
           
           <label for="price-filter">Price</label>
           <select name="priceFilter" id="price-filter">
+            <option id="price-filter-data" value="{{priceFilter}}" selected hidden></option>
             <option value="all">All</option>
             <option value="hightolow">High To Low</option>
             <option value="lowtohigh">Low To High</option>
@@ -55,6 +57,7 @@
 
           <label for="type">Category</label>
           <select name="type" id="type">
+            <option id="type-filter-data" value="{{type}}" selected hidden></option>
             <option value="all">All</option>
             <option value="mobile">Mobile</option>
             <option value="laptop">Laptop</option>
@@ -116,7 +119,7 @@
                   <button type="submit" class="btn-delete">Delete</button>
                 </form>
               {{else}}
-                <a href="product/{{this._id}}" class="btn-cart">Buy Now</a>
+                <a href="product/{{this._id}}" class="btn-cart">View Details</a>
               {{/if}}
             </div>
           </div>
@@ -135,6 +138,30 @@
         console.error("Sidebar element not found in the DOM!");
       }
     }
+
+
+
+    const priceFilter = "{{priceFilter}}";
+    const type = "{{type}}";
+
+
+const typeData = document.querySelector("#type-filter-data");
+const priceFilterData = document.querySelector("#price-filter-data");
+
+if (priceFilter === 'all' || priceFilter === '') {
+    priceFilterData.textContent = "All";
+} else if (priceFilter === "hightolow") {
+    priceFilterData.textContent = "High To Low";
+} else if (priceFilter === "lowtohigh") {
+    priceFilterData.textContent = "Low To High";
+}
+
+if (type === 'all' || type === '') {
+    typeData.textContent = "All";
+} else {
+    typeData.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+}
+
   </script>
 </body>
 

@@ -2,6 +2,7 @@ import refreshTokenModel from "../models/refreshTokenModel.js";
 import bcrypt from "bcrypt";
 import User from "../models/userModel.js";
 import Product from "../models/productModel.js";
+import Order from "../models/ordersModel.js";
 import Otp from "../models/otpModel.js";
 import nodemailer from "nodemailer";
 
@@ -266,11 +267,14 @@ export const adminDashboard = async (req, res) => {
   const userCount = await users.countDocuments({})
   const products = Product.find();
   const productCount = await products.countDocuments({})
+  const orders = Order.find();
+  const orderCount = await orders.countDocuments({})
   
   return res.render('admin-dashboard',
     {
       userCount,
       productCount,
+      orderCount,
       isAdmin: role=='admin'
     }
   );

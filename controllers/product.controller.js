@@ -134,7 +134,8 @@ export const deleteProductController = async (req, res) => {
 
 export const getSingleProduct = async (req, res) => {
 
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
   const user = req.user;
 
   const product = await Product.findOne({ _id: id });
@@ -145,6 +146,11 @@ export const getSingleProduct = async (req, res) => {
     product,
     user
   });
+  } catch (error) {
+    console.log(error);
+    return res.redirect('/products');
+  }
+  
 };
 
 export const cartController = async (req, res) => {
@@ -191,6 +197,9 @@ export const filterByCategory = async (req, res, next) => {
     const { role } = req.user;
     type = type.toLowerCase();
 
+    console.log("filterByCategory: ",req.query.priceFilter);
+    
+
     let products;
 
     const safeInput = type.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
@@ -214,6 +223,7 @@ export const filterByCategory = async (req, res, next) => {
       //   products: products,
       // });
       req.products = products;
+      
       next();
     } else {
 
@@ -241,6 +251,7 @@ export const filterByCategory = async (req, res, next) => {
       //   products: products,
       // });
       req.products = products;
+      
 
       console.log(req.products);
       
@@ -272,6 +283,8 @@ export const filterByPrice = async (req, res) => {
       isAdmin: role == "admin",
       products: products,
       searchData,
+      type,
+      priceFilter
     });
   } catch (error) {
     console.log("filterCategory: ", error);
@@ -436,7 +449,7 @@ export const updateItemQuantity = async (req, res) => {
 //   });
   
   
-//   // const userDetails = await User.find({ userId });
+  // const userDetails = await User.find({ userId });
 
 //   return res.end();
 // }

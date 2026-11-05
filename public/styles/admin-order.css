@@ -215,6 +215,7 @@ nav form button:hover {
 .orders-list {
   display: flex;
   flex-direction: column;
+ 
   gap: 20px;
 }
 
@@ -278,14 +279,19 @@ nav form button:hover {
 
 /* Order items list */
 .order-items {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
   padding: 0;
   list-style: none;
 }
 
 .order-item {
   display: flex;
-  align-items: center;
-  gap: 14px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 24px;
   padding: 14px 22px;
   border-bottom: 1px solid #f8fafc;
   transition: background 0.2s;
@@ -342,7 +348,7 @@ nav form button:hover {
   border-top: 1px solid #f1f5f9;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 14px;
   flex-wrap: wrap;
 }

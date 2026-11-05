@@ -143,13 +143,14 @@ nav form button:hover {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  
 }
 
 /* Main image */
 .main-image {
-  width: 100%;
   aspect-ratio: 1;
   border-radius: 20px;
+  /* object-fit: contain; */
   overflow: hidden;
   background: #f8fafc;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -158,7 +159,7 @@ nav form button:hover {
 .main-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* object-fit: contain; */
   transition: transform 0.5s ease;
 }
 
@@ -193,7 +194,7 @@ nav form button:hover {
 .thumb img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 /* ─── DETAILS PANE ────────────────────────────────────────── */

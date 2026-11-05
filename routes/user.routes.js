@@ -42,6 +42,8 @@ userRouter.get('/reset-password', isLoggedOut, authUser, (req, res)=>{
     return res.render('resetPassword')
 })
 
+
+
 userRouter.get('/users', authToken, authAdmin, getAllUsersController);
 
 userRouter.post('/delete-user', authToken, authAdmin, deleteUserController);

@@ -29,6 +29,11 @@ html, body {
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
   background: #f8fafc;
+  scroll-behavior: smooth;
+  scrollbar-gutter: var(--card-bg);
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+  
 }
 
 /* ─── NAVBAR ─────────────────────────────────────────────── */
@@ -41,9 +46,11 @@ nav {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   padding: 0 32px;
   height: 64px;
+  width: 99vw;
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 20px;
+  justify-content: space-between;
 }
 
 .nav-logo,
@@ -64,7 +71,7 @@ nav ul {
   align-items: center;
   gap: 8px;
   list-style: none;
-  margin-left: auto;
+  /* margin-left: auto; */
 }
 
 nav ul li a,
@@ -90,6 +97,11 @@ nav .search-wrapper {
   flex: 1;
   max-width: 380px;
   position: relative;
+  margin-left: auto;
+  margin-right: 10px;
+  background-color: white;
+  border-radius: 25px;
+  
 }
 
 .search-form {
@@ -104,7 +116,7 @@ nav .search-wrapper input {
   border: 1.5px solid rgba(34, 211, 238, 0.25);
   border-radius: 100px;
   padding: 9px 16px 9px 40px;
-  color: var(--text);
+  color: black;
   font-family: 'Inter', sans-serif;
   font-size: 0.88rem;
   outline: none;

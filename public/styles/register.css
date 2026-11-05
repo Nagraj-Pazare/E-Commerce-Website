@@ -254,6 +254,18 @@ button[type="submit"]:active {
   text-underline-offset: 3px;
 }
 
+.form-footer a{
+  text-decoration: none;
+  color: var(--accent);
+  margin-top: 10px;
+  transition: all 0.1s ease-in-out;
+}
+
+.form-footer a:hover{
+  color: var(--text);
+  text-decoration: underline;
+}
+
 /* Responsive */
 @media (max-width: 520px) {
   .form-container {
