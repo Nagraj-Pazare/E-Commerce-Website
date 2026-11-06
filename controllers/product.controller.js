@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 
 export const updateProductRoute = async (req, res) => {
   try {
-    const { id } = req.body;
+    const id = req.params.id;
     const product = await Product.findById(id);
     return res.render("update-product", { id, product });
   } catch (error) {
@@ -151,10 +151,6 @@ export const getSingleProduct = async (req, res) => {
     return res.redirect('/products');
   }
   
-};
-
-export const cartController = async (req, res) => {
-  return res.render("cart");
 };
 
 export const filterProductByName = async (req, res) => {

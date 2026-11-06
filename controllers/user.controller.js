@@ -298,17 +298,15 @@ export const filterUserByName = async (req, res, next) => {
 
     users = await User.find({
       username: { $regex: safeInput, $options: "i" },
-      role: "user"
     });
   }
   else{
-    users = await User.find({
-      role: 'user'
-    });
+    users = await User.find();
   }
 
   return res.status(200).render('users',{
-    users
+    users,
+    searchData
   })
 
 }
@@ -324,11 +322,12 @@ export const filterUserBy = async (req, res, next) => {
       sortQuery = { username: -1 }; 
     }
 
-    const users = await User.find({ role: 'user' }).sort(sortQuery).collation({ locale: 'en', strength: 2 }).lean();
+    const users = await User.find().sort(sortQuery).collation({ locale: 'en', strength: 2 }).lean();
     
     return res.status(200).render("users", {
       success: true,
       users: users,
+      sortUserBy
     });
   } catch (error) {
     console.error(error);

@@ -19,43 +19,47 @@ import productRouter from "./routes/product.routes.js";
 import methodOverride from "method-override";
 import { jwtDecode } from "jwt-decode";
 import fileUpload from "express-fileupload";
+import session from "express-session";
 import {
   generateAccessToken,
   generateRefreshToken,
 } from "./controllers/token.controller.js";
-import {
-  registerController,
-  loginController,
-  forgetPasswordController,
-  verifyResetOtpController,
-  resetPasswordController,
-} from "./controllers/user.controller.js";
 
-import {
-  showAllProductsController,
-  addProductController,
-  updateProductController,
-  deleteProductController,
-  getSingleProduct,
-  cartController
-} from "./controllers/product.controller.js";
+import { authRefreshToken } from "./controllers/authToken.controller.js";
+
 import hbs from 'hbs'
+
 
 
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use(methodOverride("_method"));
 app.use(express.static('public')); 
 app.use(fileUpload({
   createParentPath: true
 }));
+app.use(session({
+  secret: process.env.SESSION_SECRET || "your-secret-key",
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false }
+}));
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.set("view engine", "hbs");
+app.get("/refresh", authRefreshToken); 
 app.use("/", userRouter);
 app.use("/", productRouter);
+
 app.set("view options", { layout: false });
+app.use((req, res, next) => {
+  res.status(404).render("error-page", {
+    statusCode: 404,
+    errorTitle: "Page Not Found",
+    errorMessage: "We couldn't find the page you were looking for."
+  });
+});
 hbs.registerHelper('json', function (context) {
     return JSON.stringify(context);
 });
@@ -64,27 +68,11 @@ hbs.registerHelper('toLowerCase', function (str) {
 });
 connectToDB();
 
-app.post("/register", registerController);
 
-app.post("/login", authUser, loginController);
 
-app.post("/forget-password", authUser, forgetPasswordController);
 
-app.post("/verify-reset-otp", authUser, verifyResetOtpController);
 
-app.post("/reset-password", resetPasswordController);
 
-app.get("/products", authToken, showAllProductsController);
-
-app.get("/product/:id", authToken, getSingleProduct)
-
-app.get("/cart", authToken, cartController)
-
-app.post("/products", authToken, authAdmin, addProductController);
-
-app.patch("/products/:id", authToken, authAdmin, updateProductController);
-
-app.delete("/products/:id", authToken, authAdmin, deleteProductController);
 
 app.listen(3000, () => {
   console.log("Server is running on 3000 port");

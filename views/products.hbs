@@ -15,7 +15,7 @@
       
     <!-- Search Bar Wrapper -->
     <div class="search-wrapper">
-      <form action="filtered-product" method="get" class="search-form">
+      <form action="/filtered-product" method="get" class="search-form">
         <input type="text" name="searchData" id="search-bar" placeholder="Enter Product Name" value="{{searchData}}">
       </form>
     </div>
@@ -39,12 +39,13 @@
       <a href="admin-dashboard" class="sidebar-link">Admin Dashboard</a>
       <a href="add-product" class="sidebar-link">+ Add Product</a>
       <a href="users" class="sidebar-link">View All Users</a>
+      <a href="admin/orders">View All Orders</a>
       {{/if}}
 
       <!-- Filter Card -->
       <div class="filter-card">
         <h3>Filter Products</h3>
-        <form action="filter-by" method="get">
+        <form action="/filter-by" method="get">
           <input type="text" name="searchData" id="searchData" value="{{searchData}}" hidden>
           
           <label for="price-filter">Price</label>
@@ -58,11 +59,17 @@
           <label for="type">Category</label>
           <select name="type" id="type">
             <option id="type-filter-data" value="{{type}}" selected hidden></option>
-            <option value="all">All</option>
+            {{!-- <option value="all">All</option>
             <option value="mobile">Mobile</option>
             <option value="laptop">Laptop</option>
             <option value="webcam">Webcam</option>
-            <option value="electronic">Electronic</option>
+            <option value="electronic">Electronic</option> --}}
+
+            <option value="all">All</option>
+             {{#each types}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
+            
           </select>
 
           <button type="submit" class="btn-filter">Apply Filter</button>
@@ -79,9 +86,11 @@
     <!-- Main Content Grid -->
     <main class="main-content">
       <header class="page-header">
+       
         <h1>Product <span>Catalog</span></h1>
         {{#if isAdmin}}
         <a href="add-product" class="btn-primary">+ Add Product</a>
+         
         {{/if}}
       </header>
 
@@ -111,15 +120,12 @@
             <!-- Product Action Buttons -->
             <div class="product-actions">
               {{#if ../isAdmin}}
-                <form action="update-product" method="POST" class="card-action-form">
-                  <input type="text" name="id" hidden value="{{this._id}}" />
-                  <button type="submit" class="btn-update">Update</button>
-                </form>
-                <form action="products/{{this._id}}?_method=DELETE" method="POST" class="card-action-form">
+                <a href="/update-product/{{this._id}}" class="btn-update">Update</a>
+                <form action="/products/{{this._id}}?_method=DELETE" method="POST" class="card-action-form">
                   <button type="submit" class="btn-delete">Delete</button>
                 </form>
               {{else}}
-                <a href="product/{{this._id}}" class="btn-cart">View Details</a>
+                <a href="products/{{this._id}}" class="btn-cart">View Details</a>
               {{/if}}
             </div>
           </div>
@@ -138,8 +144,6 @@
         console.error("Sidebar element not found in the DOM!");
       }
     }
-
-
 
     const priceFilter = "{{priceFilter}}";
     const type = "{{type}}";
@@ -160,6 +164,25 @@ if (type === 'all' || type === '') {
     typeData.textContent = "All";
 } else {
     typeData.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+}
+
+let types = {{{types}}};
+async function sendTypes(){
+  try{
+    const response = await fetch('http://localhost:3000/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify({ types: types }) 
+    });
+    
+    const data = await response.json();
+    console.log("Success:", data);
+  }
+  catch (error) {
+    console.error("Error sending array:", error);
+  }
 }
 
   </script>

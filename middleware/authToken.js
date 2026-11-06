@@ -2,17 +2,33 @@ import jwt from "jsonwebtoken";
 
 const authToken = (req, res, next) => {
 
-  let decoded;
+  ;
     try {
       const accessToken = req.cookies.accessToken;
-      decoded = jwt.verify(accessToken, process.env.JWT_SECRET,);
+      if (!accessToken) throw new Error("No token");
+      let decoded = jwt.verify(accessToken, process.env.JWT_SECRET,);
       req.user = decoded;
       // console.log("accessToken", accessToken);
       next();
     } catch (error) {
-      const originalUrl = req.originalUrl;
+
       // console.log(error);
-      return res.redirect(`/refresh?redirect=${encodeURIComponent(originalUrl)}`);
+      
+     if (req.method !== "GET") {
+      req.session.pendingRequest = {
+        method: req.method,
+        url: req.originalUrl,
+        body: req.body
+      }
+
+      return res.redirect("/refresh?redirect=" + encodeURIComponent(req.originalUrl.split('?')[0]));
+    };
+    // console.log(error);
+
+      const baseUrl = req.originalUrl.split('?')[0];
+      return res.redirect(`/refresh?redirect=${encodeURIComponent(baseUrl)}`);
+
+      
       // res.render('login', {errorMessage:"LogIn First to Access Products"});
       // res.status(500).json({
       //   success: false,
