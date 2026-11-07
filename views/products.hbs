@@ -10,6 +10,7 @@
 
 <body>
   <nav>
+    <button class="menu-btn" onclick="handleMenu()">☰</button>
     <a href="/products" class="logo">Logo</a>
     
       
@@ -23,6 +24,7 @@
     {{#unless isAdmin}}
     <div class="nav-links">
       <a href="/cart" class="cart-btn">Cart 🛒</a>
+      <a href="/profile" class="nav-btn profile-link" ><button style="border-radius: 50%;">👤</button><span>Profile</span></a>
     </div>
       {{/unless}}
   </nav>

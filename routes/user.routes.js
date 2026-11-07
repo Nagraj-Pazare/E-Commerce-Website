@@ -16,7 +16,10 @@ import {
   forgetPasswordController,
   verifyResetOtpController,
   resetPasswordController,
+  displayProfile
 } from "../controllers/user.controller.js";
+
+import {addAddress, getUserAddresses, changeDefaultAddress, editAddress, updateAddress, deleteAddress } from '../controllers/address.controller.js'
 
 const userRouter = express.Router();
 
@@ -73,5 +76,21 @@ userRouter.get("/filtered-user", authToken, authAdmin, filterUserByName);
 userRouter.get("/filter-user-by", authToken, authAdmin, filterUserBy);
 
 userRouter.get("/admin-dashboard", authToken, authAdmin, adminDashboard);
+
+userRouter.get("/profile", authToken, getUserAddresses, displayProfile);
+
+userRouter.post("/add-address", authToken, addAddress);
+
+userRouter.get("/add-address-form", authToken, async (req, res) => {
+  return res.render('add-address');
+});
+
+userRouter.post("/change-default-address", authToken, changeDefaultAddress);
+
+userRouter.post("/edit-address", authToken, editAddress);
+
+userRouter.post("/update-address", authToken, updateAddress);
+
+userRouter.post("/delete-address", authToken, deleteAddress);
 
 export default userRouter;

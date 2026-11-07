@@ -42,6 +42,7 @@ nav {
   justify-content: space-between;
 }
 
+
 nav .logo {
   font-weight: 800;
   font-size: 1.5rem;
@@ -66,6 +67,23 @@ nav ul li a {
   padding: 8px 16px;
   border-radius: 8px;
   transition: var(--transition);
+}
+
+nav .nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  color: white;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 8px 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: var(--transition);
+  cursor: pointer;
 }
 
 nav ul li a:hover {
@@ -220,49 +238,156 @@ nav ul li a:hover {
 
 /* ─── CART SUMMARY SIDEBAR ────────────────────────────────── */
 .cart-summary {
-  background: var(--surface);
-  border-radius: var(--radius);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--border);
-  position: sticky;
-  top: 94px;
-  overflow: hidden;
+    width: 380px;
+    position: sticky;
+    top: 2rem; /* Keeps the summary pinned while scrolling long lists */
 }
 
 .cart-summary-inner {
-  padding: 28px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.cart-summary h2 {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--dark);
-  margin-bottom: 20px;
+/* Address Section Header */
+.address-container label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    display: inline-block;
 }
 
+/* Address Cards Layout */
+.address-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background-color: #f9fafb;
+    transition: all 0.2s ease;
+}
+
+.address-card:hover {
+    border-color: #3b82f6;
+    background-color: #f0fdf4; /* Light green tint or use blue tint */
+}
+
+/* Style the Radio Inputs */
+.address-card input[type="radio"] {
+    margin-top: 0.25rem;
+    accent-color: #2563eb;
+    cursor: pointer;
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+/* Clean Address Typography Fragments */
+.address-card p {
+    margin: 0;
+    color: #4b5563;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.address-card .receiver-name {
+    color: #111827;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.address-card .phone-text {
+    margin-bottom: 0.5rem;
+}
+
+/* Order Summary Header */
+.cart-summary-inner h2 {
+    font-size: 1.25rem;
+    color: #111827;
+    margin: 1.5rem 0 1rem 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Rows Styling */
 .summary-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
-  color: var(--text-muted);
-  font-size: 0.95rem;
+    display: flex;
+    justify-content: space-between;
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
 }
 
 .summary-row.total {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--dark);
-  border-top: 2px solid var(--border);
-  border-bottom: none;
-  margin-top: 10px;
-  padding-top: 16px;
+    border-top: 1px dashed #d1d5db;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    color: #111827;
+    font-weight: 700;
+    font-size: 1.15rem;
 }
 
-.summary-row.total .amount {
-  color: var(--success);
-  font-size: 1.25rem;
+.summary-row .amount {
+    color: #16a34a; /* Rupee amount in clean green tint */
+}
+
+.add-btn{
+   width: 100%;
+    background-color: #3a76f5;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 0.85rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1.25rem;
+    transition: background-color 0.2s ease;
+}
+
+.add-btn:hover{
+  background-color: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+}
+/* Checkout Button */
+.checkout-btn {
+    width: 100%;
+    background-color: #1720c9;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.85rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1.25rem;
+    transition: background-color 0.2s ease;
+}
+
+.checkout-btn:hover {
+    background-color: #0831a1;
+}
+
+.checkout-btn:active {
+    background-color: #1e40af;
+}
+
+/* Responsive adjustment for small viewport breakpoints */
+@media (max-width: 768px) {
+    .cart-page-container {
+        flex-direction: column;
+    }
+    .cart-summary {
+        width: 100%;
+        position: static;
+    }
 }
 
 .checkout-btn {

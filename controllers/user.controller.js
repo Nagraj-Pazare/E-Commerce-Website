@@ -33,6 +33,12 @@ export const registerController = async (req, res) => {
   try {
     console.log(req.body);
     const { username, role, email, password } = req.body;
+
+    if (!username?.trim() || !role?.trim() || !email?.trim() || !password?.trim()) {
+      return res.status(400).render('register', {errorMessage:"All fields are required."});
+    }
+
+
     const hashPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       username: username,
@@ -58,6 +64,11 @@ export const loginController = async (req, res) => {
 
     const { email, password, role } = req.body;
     const user = req.user;
+
+
+    if (!role?.trim() || !email?.trim() || !password?.trim()) {
+      return res.status(400).render('login', {errorMessage:"All fields are required."});
+    }
 
     const isPassMatch = await bcrypt.compare(password, user.password);
     if (isPassMatch && user.role == role) {
@@ -334,3 +345,30 @@ export const filterUserBy = async (req, res, next) => {
     return res.status(500).send("Server Error");
   }
 };
+
+export const displayProfile = async(req, res)=>{
+  // console.log("req.addresses: ",req.addresses);
+
+  if(!req.addresses){
+    return res.status(404).render('profile',{
+      errorMessage: "No Address Found"
+    })
+  }
+
+ try {
+  const { email } = req.user;
+  const user = await User.findOne({ email });
+  // console.log("display Profile: ", user);
+  
+   return res.render('profile',
+    {
+      addresses: req.addresses,
+      user,
+      isAdmin: user.role === "admin",
+    }
+  );
+ } catch (error) {
+  console.log(error);
+  res.end();
+ }
+}

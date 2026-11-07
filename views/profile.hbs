@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="styles/profile.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav>
+        <button class="menu-btn" onclick="handleMenu()">☰</button>
+        <a href="/products" class="logo">Logo</a>
+        <div class="nav-links">
+            <a href="/admin-dashboard" class="nav-btn"><button>Home</button></a>
+        </div>
+    </nav>
+
+    <!-- PAGE WRAPPER -->
+    <div class="page-wrapper">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <h2>Navigation</h2>
+            <a href="/products" class="sidebar-link">📦 All Products</a>
+            <div class="profile-action-footer">
+                    <a href="/logout" class="btn-delete" style="max-width: 180px; text-decoration: none;">Log Out</a>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Account <span>Profile</span></h1>
+            </div>
+
+            <div class="profile-main-card">
+                <!-- User Info Header -->
+                <div class="profile-header-section">
+                    {{#if user.profileImage}}
+                        <img src="{{user.profileImage}}" alt="Profile pic" class="profile-pic">
+                    {{else}}
+                        <div class="profile-avatar-fallback">
+                            <!-- Show first letter of username as initials -->
+                            <span>{{user.username.[0]}}</span>
+                        </div>
+                    {{/if}}
+                    
+                    <div class="user-details-box">
+                        <h2>{{user.username}}</h2>
+                        <p class="user-email">{{user.email}}</p>
+                        <span class="role-badge">Role: {{user.role}}</span>
+                    </div>
+                </div>
+
+                <hr class="profile-divider">
+
+                <!-- Saved Addresses Section -->
+                {{#unless isAdmin}}
+                <div class="addresses-container-section">
+                    <h3>Saved Addresses</h3>
+                    <div class="address-grid-list">
+                        {{#each addresses}}
+                        <div class="address-card-item">
+                            {{#if this.isDefault}}
+                                <span class="default-badge">Default</span>
+                            {{/if}}
+                            {{#unless this.isDefault}}
+                                <form action="/change-default-address" method="post">
+                                    <span class="set-default-badge"><button type="submit" name="addressId" value="{{this._id}}">Set Default</button></span>
+                                </form>
+                                <form action="/delete-address" method="post">
+                                <button type="submit" name="addressId" value="{{this._id}}" class="btn-delete">Delete</button>
+                                </form>
+                            {{/unless}}
+                            <p class="receiver-name"><strong>{{this.fullName}}</strong></p>
+                            <p class="phone-text"><strong>Phone:</strong> {{this.phone}}</p>
+                            <p class="address-text">
+                                {{this.addressLine1}}{{#if this.addressLine2}}, {{this.addressLine2}}{{/if}}, 
+                                {{this.city}}, {{this.stateOrProvince}}, {{this.country}} - {{this.postalCode}}
+                            </p>
+                            <form action="/edit-address" method="post">
+                            <button class="edit-btn" type="submit" name="addressId" value="{{this._id}}">Edit</button></form>
+                        </div>
+                        {{else}}
+                        <div class="empty-state">
+                            <h3>No saved addresses found.</h3>
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
+                {{/unless}}
+                
+                <!-- Actions -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

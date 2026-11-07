@@ -2,6 +2,7 @@ import Product from "../models/productModel.js";
 import Order from "../models/ordersModel.js";
 import Cart from "../models/userCartModel.js";
 import User from "../models/userModel.js";
+import Address from "../models/addressModel.js";
 // import User from "../models/UserModel.js";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -329,6 +330,7 @@ export const getCart = async (req, res) => {
     const cartItems = cart ? cart.items : [];
     //  console.log(cartItems);
 
+    const addresses = await Address.find({ userId });
     if(!cartItems){
       return res.redirect("/products")
     }
@@ -336,6 +338,7 @@ export const getCart = async (req, res) => {
     return res.status(200).render("cart", {
       success: true,
       cartItems,
+      addresses
     });
 
   } catch (error) {
@@ -456,8 +459,14 @@ export const createOrder = async (req, res) => {
   console.log(req.user);
   
   try {
-    const { items } = req.body; 
+    const { items, addressId } = req.body; 
+    console.log(addressId);
+    
     const userId = req.user.userId; 
+    const address = await Address.findOne({_id: addressId});
+    console.log(address);
+    
+
 
     console.log(req.body);
     
@@ -494,6 +503,16 @@ export const createOrder = async (req, res) => {
       user: userId,
       items: formattedItems,
       totalAmount,
+      shippingAddress: {
+        fullName: address.fullName,
+        phone: address.phone,
+        addressLine1: address.addressLine1,
+        addressLine2: address.addressLine2,
+        city: address.city,
+        stateOrProvince: address.stateOrProvince,
+        postalCode: address.postalCode,
+        country: address.country
+      }
     });
 
     const savedOrder = await newOrder.save();
@@ -503,6 +522,8 @@ export const createOrder = async (req, res) => {
     res.status(201).json({ message: "Order placed successfully", order: savedOrder });
 
   } catch (error) {
+    console.log(error);
+    
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -517,7 +538,7 @@ export const placedOrder = async (req, res) => {
         path: "items.product",      
         select: "name price image"   
       })
-      .sort({ createdAt: -1 });      
+      .sort({ createdAt: -1 }).lean();      
 
     return res.status(200).render('placed-orders',{
       placedOrders,

@@ -9,6 +9,8 @@ const authToken = (req, res, next) => {
       let decoded = jwt.verify(accessToken, process.env.JWT_SECRET,);
       req.user = decoded;
       // console.log("accessToken", accessToken);
+      // console.log("authToken: ", req.user);
+      
       next();
     } catch (error) {
 

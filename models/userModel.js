@@ -4,7 +4,13 @@ const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: [true, "Username is required."],
-    match: /^[a-zA-Z0-9_]+$/
+    match: /^[a-zA-Z0-9_]+$/,
+    validate: {
+      validator: function(v) {
+        return v && v.trim().length > 0; // Fails if empty or just spaces
+      },
+      message: "Username cannot be empty"
+    }
   },
   role:{
     type: String,
@@ -19,15 +25,23 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Email is required."],
     unique: true,
-    match: /.+\@.+\..+/
+    match: /.+\@.+\..+/,
+    validate: {
+      validator: function(v) {
+        return v && v.trim().length > 0; // Fails if empty or just spaces
+      },
+      message: "Email cannot be empty"
+    }
   },
   password: {
     type: String,
     required: [true, "Password is required."],
-     match: [
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      'Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character.'
-    ]
+    validate: {
+      validator: function(v) {
+        return v && v.trim().length > 0; // Fails if empty or just spaces
+      },
+      message: "Password cannot be empty"
+    }
   },
 });
 

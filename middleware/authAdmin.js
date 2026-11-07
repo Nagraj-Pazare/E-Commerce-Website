@@ -10,7 +10,7 @@ const authAdmin = async (req, res, next)=>{
         req.user = user;
         next();
     } else{
-        res.status(404).render('products');
+        res.status(401).redirect('/products');
     }
     
 }

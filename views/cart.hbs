@@ -12,12 +12,8 @@
     <nav>
         <a href="/products" class="logo">Logo</a>
         <ul>
-            {{#if isAdmin}}
-            <li><a href="add-product">+ Add Product</a></li>
-            <li><a href="users">View Users</a></li>
-            {{/if}}
-            <li><a href="/products">Home</a></li>
-            <li><a href="placed-orders">Placed Orders</a></li>
+            <li><a href="/products" class="nav-btn">Home</a></li>
+            <li><a href="placed-orders" class="nav-btn">Placed Orders</a></li>
         </ul>
     </nav>
 
@@ -67,6 +63,22 @@
         <!-- Right Column: Cart Summary Sidebar -->
         <div class="cart-summary">
             <div class="cart-summary-inner">
+                <div class="address-container">
+                    <label for="address">Select Address: </label><br>
+                    {{#each addresses}}
+                    <div class="address-card">
+                        <input type="radio" name="address" id="address" value="{{this._id}}">
+                        <p class="receiver-name"><strong>{{this.fullName}}</strong></p>
+                            <p class="phone-text"><strong>Phone:</strong> {{this.phone}}</p>
+                            <p class="address-text">
+                                {{this.addressLine1}}{{#if this.addressLine2}}, {{this.addressLine2}}{{/if}}, 
+                                {{this.city}}, {{this.stateOrProvince}}, {{this.country}} - {{this.postalCode}}
+                            </p>
+                        
+                    </div>
+                    {{/each}}
+                   <a href="/add-address-form"> <button class="add-btn">Add New Address</button></a>
+                </div>
                 <h2>Order Summary</h2>
                 <div class="summary-row">
                     <span>Total Items</span>
@@ -103,18 +115,26 @@
             if (checkoutBtn) checkoutBtn.disabled = true;
 
             try {
+
+                const selectedAddressInput = document.querySelector('input[name="address"]:checked');
+            
+            if (!selectedAddressInput) {
+                alert("Please select a delivery address before proceeding.");
+                return;
+            }
+            
+                const addressId = selectedAddressInput.value;
                 const formattedItems = cartItems.map(cartItem => ({
                     product: typeof cartItem.productId === 'object' ? cartItem.productId._id : cartItem.productId, 
                     quantity: cartItem.quantity
                 }));
-
                 const response = await fetch("http://localhost:3000/checkout", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${localStorage.getItem("token")}` 
                     },
-                    body: JSON.stringify({ items: formattedItems })
+                    body: JSON.stringify({ items: formattedItems, addressId })
                 });
 
                 const data = await response.json();

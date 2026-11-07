@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Address</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="styles/profile.css">
+    <link rel="stylesheet" href="styles/add-address.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <a href="/" class="logo">Dashboard</a>
+        </div>
+        <div class="nav-links">
+            <a href="/products">Products</a>
+            <a href="/profile">Profile</a>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <a href="/logout" class="nav-btn" style="border-color: rgba(239, 68, 68, 0.3); color: #fca5a5;">Log Out</a>
+        </div>
+    </nav>
+
+    <!-- PAGE WRAPPER -->
+    <div class="page-wrapper">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <h2>Navigation</h2>
+            <a href="/products" class="sidebar-link">📦 All Products</a>
+            <a href="/profile" class="sidebar-link">👤 My Profile</a>
+            <a href="/cart" class="sidebar-link">🛒 My Cart</a>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Edit <span>Address</span></h1>
+            </div>
+
+            <div class="form-container-card">
+                <form action="/add-address" method="POST" class="styled-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fullName">Receiver's Name</label>
+                            <input type="text" name="fullName" id="fullName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="text" name="phone" id="phone" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="addressLine1">Address Line 1</label>
+                            <input type="text" name="addressLine1" id="addressLine1" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="addressLine2">Address Line 2 (Optional)</label>
+                            <input type="text" name="addressLine2" id="addressLine2">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" name="city" id="city" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stateOrProvince">State / Province</label>
+                            <input type="text" name="stateOrProvince" id="stateOrProvince" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <input type="text" name="country" id="country" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="postalCode">Postal Code</label>
+                            <input type="text" name="postalCode" id="postalCode" required>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="/cart" class="btn-reset">Cancel</a>
+                        <button type="submit" class="btn-submit">Add</button>
+                    </div>
+
+                </form>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>
