@@ -18,9 +18,11 @@ export const getUserAddresses = async (req, res, next) => {
 
 export const addAddress = async (req, res) => {
   try {
+    
     const { isCart } = req.body;
     const userId = req.user.userId || req.user._id;
     const {
+      redirectTo,
       fullName,
       phone,
       addressLine1,
@@ -45,7 +47,7 @@ export const addAddress = async (req, res) => {
       isDefault: isDefault || false,
     });
 
-    return res.status(201).redirect("/cart");
+    return res.status(201).redirect(redirectTo);
   } catch (error) {
     console.error("Error saving address:", error);
     return res
@@ -72,13 +74,14 @@ export const changeDefaultAddress = async (req, res) => {
 
 export const editAddress = async (req, res) => {
   try {
-    const { addressId } = req.body;
+    const { addressId, redirectTo } = req.body;
     const address = await Address.findOne({ _id: addressId });
 
     console.log("edit address: ", address);
 
     return res.render("edit-address", {
       address,
+      redirectTo
     });
   } catch (error) {
     console.log(error);
@@ -92,6 +95,7 @@ export const updateAddress = async (req, res) => {
   
 try {
   const {
+    redirectTo,
     addressId,
     fullName,
     phone,
@@ -103,9 +107,12 @@ try {
     country,
   } = req.body;
 
+
   await Address.findByIdAndUpdate({_id: addressId}, {...req.body});
 
-  return res.status(200).redirect('/profile');
+   
+    
+  return res.status(200).redirect(redirectTo);
 } catch (error) {
   console.log(error);
   return res.status(500).json({

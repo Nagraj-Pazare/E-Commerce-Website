@@ -14,6 +14,8 @@ import axios from "axios";
 import bcrypt from "bcrypt";
 import connectToDB from "./config/database.js";
 import cookieParser from "cookie-parser";
+import bodyParser from 'body-parser'
+import path from "path";
 import userRouter from "./routes/user.routes.js";
 import productRouter from "./routes/product.routes.js";
 import methodOverride from "method-override";
@@ -35,8 +37,11 @@ import hbs from 'hbs'
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static('public')); 
+// app.use(express.static(path.join(__dirname)));
 app.use(fileUpload({
   createParentPath: true
 }));

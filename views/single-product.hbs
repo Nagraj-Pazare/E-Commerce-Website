@@ -16,8 +16,8 @@
             <li><a href="add-product">+ Add Product</a></li>
             <li><a href="users">View Users</a></li>
             {{/if}}
-            <li><a href="/products">Home</a></li>
-            <li><a href="/cart">Cart 🛒</a></li>
+            <li><a class="nav-btn" href="/products">Home</a></li>
+            <li><a class="nav-btn" href="/cart">Cart 🛒</a></li>
         </ul>
     </nav>
 
@@ -52,7 +52,7 @@
             <h1>{{product.name}}</h1>
             
             <div class="detail-price">
-                <span class="currency">₹</span>{{product.price}}
+                <span class="currency"></span>₹ {{product.price}}
             </div>
 
             <div class="product-description">
@@ -76,6 +76,35 @@
             </form>
         </div>
     </main>
+    {{#if products}}
+    <hr> <hr><br>
+ <header class="page-header">
+       
+        <h1>Similar <span>Products</span></h1>
+      </header>
+    <div class="products-grid">
+        {{#each products}}
+        <div class="product-card">
+          {{#each images}}
+            {{#if @first}}
+            <img id="product-image" src="/uploads/{{../name}}/{{this}}" alt="{{../name}}">
+            {{/if}}
+          {{/each}}
+
+          <div class="product-card-body">
+            <span class="type-badge">{{this.type}}</span>
+            <h3>{{this.name}}</h3>
+            <div class="product-price">₹ {{this.price}}</div>
+
+            <!-- Product Action Buttons -->
+            <div class="product-actions">
+                <a href="/products/{{this._id}}" class="btn-cart">View Details</a>
+            </div>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
 
     <script>
         let quantity = 1;

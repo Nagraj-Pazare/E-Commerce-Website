@@ -75,7 +75,39 @@ nav .logo {
   margin-left: auto;
 }
 
-.nav-btn button {
+nav .cart-btn,
+nav .nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 8px 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+nav .cart-btn:hover,
+nav .nav-btn:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.nav-btn button{
+    background: transparent;
+    color: white;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+/* .nav-btn button {
   background: var(--primary);
   color: white;
   border: none;
@@ -88,11 +120,11 @@ nav .logo {
 
 .nav-btn button:hover {
   background: var(--primary-dark);
-}
+} */
 
 /* ─── FIXED SIDEBAR (Stacked Vertically) ─── */
 .sidebar {
-    width: 240px;
+    width: 12vw;
     height: calc(100vh - 64px);
     position: sticky;
     top: 64px;
@@ -377,7 +409,7 @@ nav .logo {
 
 .btn-add{
     background: rgba(6, 191, 253, 0.066);
-    padding: 7px 15px;
+    padding: 12px 20px;
     border-radius: 5px;
     border: 1px solid;
     font-weight: 600;
@@ -389,6 +421,7 @@ nav .logo {
     background-color:  rgb(1, 174, 255);
     border: 1px solid rgb(1, 174, 255);
     color: white;
+    cursor: pointer;
 }
 
 /* Responsive */

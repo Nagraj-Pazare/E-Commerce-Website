@@ -110,14 +110,14 @@
         <div class="product-card">
           {{#each images}}
             {{#if @first}}
-            <img src="/uploads/{{../name}}/{{this}}" alt="{{../name}}">
+            <img id="product-image" src="/uploads/{{../name}}/{{this}}" alt="{{../name}}">
             {{/if}}
           {{/each}}
 
           <div class="product-card-body">
             <span class="type-badge">{{this.type}}</span>
             <h3>{{this.name}}</h3>
-            <div class="product-price">${{this.price}}</div>
+            <div class="product-price">₹ {{this.price}}</div>
 
             <!-- Product Action Buttons -->
             <div class="product-actions">

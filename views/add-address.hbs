@@ -38,11 +38,12 @@
         <!-- MAIN CONTENT AREA -->
         <main class="main-content">
             <div class="page-header">
-                <h1>Edit <span>Address</span></h1>
+                <h1>Edit <span>Address</span></h1> 
             </div>
 
             <div class="form-container-card">
                 <form action="/add-address" method="POST" class="styled-form">
+                <input type="text" name="redirectTo" id="redirectTo" value="{{redirectTo}}" hidden>
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="fullName">Receiver's Name</label>

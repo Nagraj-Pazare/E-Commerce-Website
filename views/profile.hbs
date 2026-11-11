@@ -14,7 +14,7 @@
         <button class="menu-btn" onclick="handleMenu()">☰</button>
         <a href="/products" class="logo">Logo</a>
         <div class="nav-links">
-            <a href="/admin-dashboard" class="nav-btn"><button>Home</button></a>
+            <a href="/admin-dashboard" class="nav-btn">🏠︎<button>Home</button></a>
         </div>
     </nav>
 
@@ -81,6 +81,7 @@
                                 {{this.city}}, {{this.stateOrProvince}}, {{this.country}} - {{this.postalCode}}
                             </p>
                             <form action="/edit-address" method="post">
+                            <input type="text" name="redirectTo" id="redirectTo" value="/profile" hidden>
                             <button class="edit-btn" type="submit" name="addressId" value="{{this._id}}">Edit</button></form>
                         </div>
                         {{else}}
@@ -88,6 +89,10 @@
                             <h3>No saved addresses found.</h3>
                         </div>
                         {{/each}}
+                        <form action="/add-address-form">
+                            <input type="text" name="redirectTo" id="redirectTo" value="profile" hidden>
+                            <button class="btn-add">Add New Address</button>
+                            </form>
                     </div>
                 </div>
                 {{/unless}}

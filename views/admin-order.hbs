@@ -34,6 +34,17 @@
                                     Customer: <strong>{{this.user.username}}</strong> ({{this.user.email}})
                                 </div>
                                 <div class="order-date">Placed on: {{this.createdAt}}</div>
+                                <div class="order-location"><b>Delivery Details:</b> {{this.shippingAddress.fullName}}, {{this.shippingAddress.addressLine1}}, {{this.shippingAddress.addressLine2}} {{this.shippingAddress.city}}, {{this.shippingAddress.stateOrProvince}}, {{this.shippingAddress.country}} {{this.shippingAddress.postalCode}}
+                                <br><span> ph-no: {{this.shippingAddress.phone}}</span>
+                                 <div class="payment-details">
+                            <span style="font-weight: 600;">Payment Id: 
+                            </span>
+                            <span style="background-color: rgb(156, 245, 245); padding: 2px 5px; border-radius: 5px;">
+                             {{this.payment.razorpayPaymentId}}
+                            </span><br>
+                            <span style="font-weight: 400;">Status: </span>{{this.payment.paymentStatus}}
+                        </div>
+                            </div>
                             </div>
 
                             <form action="/admin/update-status" method="GET" class="status-update-form">

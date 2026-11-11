@@ -74,19 +74,29 @@ nav .logo {
   margin-left: auto;
 }
 
-.nav-btn button {
-  background: var(--primary);
-  color: white;
-  border: none;
+nav .cart-btn,
+nav .nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 100px;
   padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-decoration: none;
   transition: var(--transition);
+  cursor: pointer;
 }
 
-.nav-btn button:hover {
-  background: var(--primary-dark);
+nav .cart-btn:hover,
+nav .nav-btn:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: var(--primary);
+  color: var(--text);
 }
 
 .profile-link{

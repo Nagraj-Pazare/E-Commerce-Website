@@ -337,6 +337,24 @@ nav ul li a:hover {
     color: #16a34a; /* Rupee amount in clean green tint */
 }
 
+.edit-btn{
+    border: 1px solid rgb(220, 219, 219);
+    background-color: transparent;
+    color: rgb(1, 174, 255);
+    padding: 8px 30px;
+    border-radius: 5px;
+     font-size: 0.9rem;
+    font-weight: 600;
+}
+
+
+.edit-btn:hover{
+    border: 1px solid rgb(1, 174, 255);
+    background-color:  rgba(1, 175, 255, 0.516);
+    color: white;
+    cursor: pointer;
+}
+
 .add-btn{
    width: 100%;
     background-color: #3a76f5;

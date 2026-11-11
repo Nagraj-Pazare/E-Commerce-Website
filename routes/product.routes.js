@@ -19,6 +19,8 @@ import {
   updateProductController,
   deleteProductController,
   getSingleProduct,
+  createRazorpayOrder,
+  verifyPayment
 } from "../controllers/product.controller.js";
 import { attachProductTypes } from '../middleware/attachProductTypes.js'
 
@@ -48,6 +50,8 @@ productRouter.get("/update-quantity", authToken, updateItemQuantity);
 
 // productRouter.get('/admin/orders', authToken, authAdmin, getOrdersController)
 
+productRouter.post("/create-order", authToken, createRazorpayOrder);
+productRouter.post("/verify-payment", authToken, verifyPayment);
 productRouter.post("/checkout", authToken, createOrder);
 
 productRouter.get("/placed-orders", authToken, placedOrder);

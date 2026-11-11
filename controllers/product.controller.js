@@ -1,16 +1,35 @@
+import express from 'express'
 import Product from "../models/productModel.js";
 import Order from "../models/ordersModel.js";
 import Cart from "../models/userCartModel.js";
 import User from "../models/userModel.js";
 import Address from "../models/addressModel.js";
 // import User from "../models/UserModel.js";
+import Razorpay from 'razorpay'
+import bodyParser from 'body-parser'
+import { validateWebhookSignature } from 'razorpay/dist/utils/razorpay-utils.js'
+import { validatePaymentVerification } from 'razorpay/dist/utils/razorpay-utils.js';
 import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs";
 import { rm } from "node:fs/promises";
 
+const app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+export const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname)));
+
+const razorpay = new Razorpay({
+  key_id: process.env.RZR_KEY_ID,
+  key_secret: process.env.RZR_KEY_SECRET,
+});
+
+
 
 export const updateProductRoute = async (req, res) => {
   try {
@@ -140,11 +159,15 @@ export const getSingleProduct = async (req, res) => {
   const user = req.user;
 
   const product = await Product.findOne({ _id: id });
+  const products = await Product.find({ type: product.type, _id: { $ne: id }});
+  // console.log(products);
+  
   
   console.log(user);
 
   return res.render("single-product", {
     product,
+    products,
     user
   });
   } catch (error) {
@@ -164,7 +187,10 @@ export const filterProductByName = async (req, res) => {
     const safeInput = searchData.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 
      products = await Product.find({
-      name: { $regex: safeInput, $options: "i" },
+      $or:[
+        {name: { $regex: safeInput, $options: "i" }},
+        {type: { $regex: safeInput, $options: "i" }}
+      ]
     });
     }
 
@@ -330,7 +356,7 @@ export const getCart = async (req, res) => {
     const cartItems = cart ? cart.items : [];
     //  console.log(cartItems);
 
-    const addresses = await Address.find({ userId });
+    const addresses = await Address.find({ userId }).sort({ isDefault: -1 });
     if(!cartItems){
       return res.redirect("/products")
     }
@@ -454,29 +480,95 @@ export const updateItemQuantity = async (req, res) => {
 // }
 
 
+export const createRazorpayOrder = async (req, res) => {
+  try {
+    const { amount, currency, receipt, notes } = req.body;
+
+    const options = {
+      amount: Math.round(amount * 100), // Convert amount to paise
+      currency: currency || 'INR',
+      receipt: receipt || 'receipt_' + Date.now(),
+      notes: notes || {}
+    };
+
+    const order = await razorpay.orders.create(options);
+    console.log(order);
+    
+    return res.status(200).json(order);
+  } catch (error) {
+    console.error("Razorpay order creation error:", error);
+    return res.status(500).json({ message: "Failed to create Razorpay order", error: error.message });
+  }
+};
+
+export const verifyPayment = async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({ status: 'failure', message: 'Missing payment verification details' });
+    }
+
+    // Verify the signature using your Razorpay secret key
+    const secret = process.env.RZR_KEY_SECRET; // Your Razorpay key_secret from top of file
+    
+    const isValid = validatePaymentVerification(
+      { order_id: razorpay_order_id, payment_id: razorpay_payment_id },
+      razorpay_signature,
+      secret
+    );
+
+    if (isValid) {
+      return res.status(200).json({ status: 'ok', message: 'Payment verified successfully' });
+    } else {
+      return res.status(400).json({ status: 'failure', message: 'Invalid payment signature' });
+    }
+  } catch (error) {
+    console.error("Payment verification error:", error);
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+
 export const createOrder = async (req, res) => {
 
-  console.log(req.user);
+ console.log("Decoded JWT user object:", req.user);
+  console.log(req.body);
+  
   
   try {
-    const { items, addressId } = req.body; 
+    const { items, addressId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body; 
     console.log(addressId);
+    console.log("create Order: ", req.user);
+    
     
     const userId = req.user.userId; 
-    const address = await Address.findOne({_id: addressId});
-    console.log(address);
-    
-
-
-    console.log(req.body);
     
     console.log("items: ", items);
-
+    
     
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "No items provided in the order." });
+    }if (!addressId) {
+      return res.status(400).json({ message: "Delivery address is required." });
     }
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({ message: "Payment details are missing." });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+     const address = await Address.findOne({_id: addressId});
+    if (!address) {
+      return res.status(404).json({ message: "Selected address not found." });
+    }
+
+
 
     let totalAmount = 0;
     const formattedItems = [];
@@ -497,7 +589,7 @@ export const createOrder = async (req, res) => {
         priceAtPurchase: productDoc.price, 
       });
     }
-
+    
 
     const newOrder = new Order({
       user: userId,
@@ -507,11 +599,17 @@ export const createOrder = async (req, res) => {
         fullName: address.fullName,
         phone: address.phone,
         addressLine1: address.addressLine1,
-        addressLine2: address.addressLine2,
+        addressLine2: address.addressLine2 || "",
         city: address.city,
         stateOrProvince: address.stateOrProvince,
         postalCode: address.postalCode,
         country: address.country
+      },
+      payment: {
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id,
+        razorpaySignature: razorpay_signature,
+        paymentStatus: "Paid"
       }
     });
 
@@ -519,7 +617,7 @@ export const createOrder = async (req, res) => {
 
     await Cart.findOneAndDelete({userId});
 
-    res.status(201).json({ message: "Order placed successfully", order: savedOrder });
+    return res.status(201).json({ message: "Order placed successfully", orderId: savedOrder._id });
 
   } catch (error) {
     console.log(error);

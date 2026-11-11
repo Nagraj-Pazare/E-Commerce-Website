@@ -43,6 +43,7 @@
 
             <div class="form-container-card">
                 <form action="/update-address" method="POST" class="styled-form">
+                    <input type="text" name="redirectTo" id="redirectTo" value="{{redirectTo}}" hidden>
                     <input type="text" name="addressId" id="addressId" value="{{address._id}}" hidden>
                     <div class="form-grid">
                         <div class="form-group">

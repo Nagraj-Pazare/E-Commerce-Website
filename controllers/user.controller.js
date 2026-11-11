@@ -250,7 +250,8 @@ export const resetPasswordController = async (req, res) => {
 
 export const getAllUsersController =  async (req, res)=>{
 
-  const { role } = req.user;
+  try {
+    const { role } = req.user;
   console.log(role);
   
 
@@ -267,11 +268,16 @@ export const getAllUsersController =  async (req, res)=>{
     //   isAdmin: role == "admin",
     //   products: products,
     // })
+  } catch (error) {
+    console.log(error);
+      return res.alert("Error Occurred : ", error);
+  }  
 };
 
 export const adminDashboard = async (req, res) => {
   
-  const { role } = req.user;
+  try {
+    const { role } = req.user;
 
 
   const users = User.find();
@@ -289,17 +295,28 @@ export const adminDashboard = async (req, res) => {
       isAdmin: role=='admin'
     }
   );
+  } catch (error) {
+     console.log(error);
+      return res.alert("Error Occurred : ", error);
+  }
   
 }
 
 export const deleteUserController = async (req, res) => {
-    const { uid } = req.body;
+    try {
+      const { uid } = req.body;
     await User.findByIdAndDelete({_id: uid});
     return res.redirect('/users');
+    } catch (error) {
+      console.log(error);
+      return res.alert("Error Occurred : ", error);
+      
+    }
 }
 
 export const filterUserByName = async (req, res, next) => {
-  let { searchData } = req.query;
+  try {
+    let { searchData } = req.query;
   console.log(searchData);
   let users;
   
@@ -319,6 +336,10 @@ export const filterUserByName = async (req, res, next) => {
     users,
     searchData
   })
+  } catch (error) {
+    console.log(error);
+    return res.alert("Error Occurred: ", error);
+  }
 
 }
 

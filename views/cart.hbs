@@ -12,8 +12,8 @@
     <nav>
         <a href="/products" class="logo">Logo</a>
         <ul>
-            <li><a href="/products" class="nav-btn">Home</a></li>
-            <li><a href="placed-orders" class="nav-btn">Placed Orders</a></li>
+            <li><a href="/products" class="nav-btn">🏠︎ Home</a></li>
+            <li><a href="placed-orders" class="nav-btn">🚚 Placed Orders</a></li>
         </ul>
     </nav>
 
@@ -67,17 +67,23 @@
                     <label for="address">Select Address: </label><br>
                     {{#each addresses}}
                     <div class="address-card">
-                        <input type="radio" name="address" id="address" value="{{this._id}}">
+                        <input type="radio" name="address" id="address" value="{{this._id}}" {{#if this.isDefault}} checked {{/if}}>
                         <p class="receiver-name"><strong>{{this.fullName}}</strong></p>
-                            <p class="phone-text"><strong>Phone:</strong> {{this.phone}}</p>
-                            <p class="address-text">
-                                {{this.addressLine1}}{{#if this.addressLine2}}, {{this.addressLine2}}{{/if}}, 
-                                {{this.city}}, {{this.stateOrProvince}}, {{this.country}} - {{this.postalCode}}
-                            </p>
-                        
+                        <p class="phone-text"><strong>Phone:</strong> {{this.phone}}</p>
+                        <p class="address-text">
+                            {{this.addressLine1}}{{#if this.addressLine2}}, {{this.addressLine2}}{{/if}}, 
+                            {{this.city}}, {{this.stateOrProvince}}, {{this.country}} - {{this.postalCode}}
+                        </p>
+                        <form action="/edit-address" method="post">
+                            <input type="text" name="redirectTo" id="redirectTo" value="/cart" hidden>
+                           <button class="edit-btn" type="submit" name="addressId" value="{{this._id}}">Edit</button>
+                        </form>
                     </div>
                     {{/each}}
-                   <a href="/add-address-form"> <button class="add-btn">Add New Address</button></a>
+                   <form action="/add-address-form">
+                   <input type="text" name="redirectTo" id="redirectTo" value="cart" hidden>
+                   <button class="add-btn">Add New Address</button>
+                   </form>
                 </div>
                 <h2>Order Summary</h2>
                 <div class="summary-row">
@@ -88,13 +94,16 @@
                     <span>Total Amount</span>
                     <span class="amount">₹<span id="totalPrice">0.00</span></span>
                 </div>
-                <button type="button" id="checkout-btn" onclick="handleCheckout(event)" class="checkout-btn">Proceed to Checkout</button>
+                <button type="button" id="checkout-btn" onclick="handleCheckout(event)" class="checkout-btn">Pay & Proceed to Checkout</button>
             </div>
         </div>
         {{/if}}
     </div>
 
-    <!-- Frontend Script for Total Calculation & Checkout -->
+    <!-- Include Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <!-- Frontend Script for Total Calculation & Razorpay Flow -->
     <script>
         const cartItems = {{{json cartItems}}};
         let totalPrice = cartItems.reduce((acc, curr) => {
@@ -111,44 +120,124 @@
         async function handleCheckout(event) { 
             if (event) event.preventDefault();
 
-            const checkoutBtn = document.getElementById("checkout-btn");
-            if (checkoutBtn) checkoutBtn.disabled = true;
-
-            try {
-
-                const selectedAddressInput = document.querySelector('input[name="address"]:checked');
-            
+            // 1. Validate that an address is selected
+            const selectedAddressInput = document.querySelector('input[name="address"]:checked');
             if (!selectedAddressInput) {
                 alert("Please select a delivery address before proceeding.");
                 return;
             }
-            
-                const addressId = selectedAddressInput.value;
+            const addressId = selectedAddressInput.value;
+
+            const checkoutBtn = document.getElementById("checkout-btn");
+            if (checkoutBtn) checkoutBtn.disabled = true;
+
+            try {
+                // 2. Request a Razorpay order from your server
+                const orderResponse = await fetch('/create-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    },
+                    body: JSON.stringify({ 
+                        amount: totalPrice, 
+                        currency: 'INR', 
+                        receipt: 'receipt_' + Date.now() 
+                    })
+                });
+
+                const razorpayOrder = await orderResponse.json();
+
+                if (!orderResponse.ok) {
+                    throw new Error(razorpayOrder.message || "Failed to create payment order");
+                }
+
+                // 3. Format cart items for final order placement after success
                 const formattedItems = cartItems.map(cartItem => ({
                     product: typeof cartItem.productId === 'object' ? cartItem.productId._id : cartItem.productId, 
                     quantity: cartItem.quantity
                 }));
-                const response = await fetch("http://localhost:3000/checkout", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${localStorage.getItem("token")}` 
+
+                // 4. Open Razorpay Checkout Modal
+                const options = {
+                    key: 'rzp_test_Tyk0Cqg9IK400h', // Replace with your active Razorpay Key ID if needed
+                    amount: razorpayOrder.amount,
+                    currency: razorpayOrder.currency,
+                    name: 'Analogue IT Solution',
+                    description: 'Cart Purchase Checkout',
+                    order_id: razorpayOrder.id,
+                    handler: async function (response) {
+                        try {
+                            // 5. Verify payment signature on backend
+                            const verifyResponse = await fetch('/verify-payment', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                                },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature
+                                })
+                            });
+
+                            const verifyData = await verifyResponse.json();
+
+                            if (verifyData.status === 'ok' || verifyResponse.ok) {
+                                // 6. Payment is verified! Now save the order to database & clear cart
+                                const finalCheckoutResponse = await fetch("http://localhost:3000/checkout", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                        "Authorization": `Bearer ${localStorage.getItem("token")}` 
+                                    },
+                                    body: JSON.stringify({ 
+                                        items: formattedItems, 
+                                        addressId,
+                                        razorpay_order_id: response.razorpay_order_id,     
+                                        razorpay_payment_id: response.razorpay_payment_id, 
+                                        razorpay_signature: response.razorpay_signature 
+                                    })
+                                });
+
+                                const contentType = finalCheckoutResponse.headers.get("content-type");
+                                if (!contentType || !contentType.includes("application/json")) {
+                                    const htmlErrorText = await finalCheckoutResponse.text();
+                                    console.error("SERVER HTML ERROR OUTPUT:", htmlErrorText);
+                                    throw new Error("Server returned HTML error page. Check browser console logs above.");
+                                }
+
+                                const finalData = await finalCheckoutResponse.json();
+
+                                if (!finalCheckoutResponse.ok) {
+                                    throw new Error(finalData.message || "Failed to save order");
+                                }
+
+                                // 7. Redirect to placed orders page
+                                window.location.href = "/placed-orders";
+                            } else {
+                                alert('Payment verification failed.');
+                                if (checkoutBtn) checkoutBtn.disabled = false;
+                            }
+                        } catch (err) {
+                            console.error('Verification/Checkout error:', err);
+                            alert(`Error completing order: ${err.message}`);
+                            if (checkoutBtn) checkoutBtn.disabled = false;
+                        }
                     },
-                    body: JSON.stringify({ items: formattedItems, addressId })
-                });
+                    theme: {
+                        color: '#6366f1' // Matches your dashboard accent theme color
+                    }
+                };
 
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || "Something went wrong");
-                }
-                
-                window.location.href = "/placed-orders";
+                const rzp = new Razorpay(options);
+                rzp.open();
 
             } catch (error) {
                 if (checkoutBtn) checkoutBtn.disabled = false;
                 console.error("Checkout error:", error.message);
-                alert(`Failed to place order: ${error.message}`);
+                alert(`Failed to initiate checkout: ${error.message}`);
             }
         }
     </script>

@@ -82,7 +82,11 @@ userRouter.get("/profile", authToken, getUserAddresses, displayProfile);
 userRouter.post("/add-address", authToken, addAddress);
 
 userRouter.get("/add-address-form", authToken, async (req, res) => {
-  return res.render('add-address');
+  const { redirectTo } = req.query;
+  return res.render('add-address', {
+    redirectTo
+  });
+  
 });
 
 userRouter.post("/change-default-address", authToken, changeDefaultAddress);
