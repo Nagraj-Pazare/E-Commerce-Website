@@ -2,6 +2,7 @@ import express from "express";
 import authUser from "../middleware/authUser.js";
 import authAdmin from "../middleware/authAdmin.js";
 import authToken from "../middleware/authToken.js";
+import { loginLimiter } from '../middleware/rateLimiter.js'
 import { isLoggedOut } from "../middleware/isLoggedOut.js";
 import User from "../models/userModel.js";
 import {
@@ -29,7 +30,7 @@ userRouter.get("/", isLoggedOut, (req, res) => {
 
 userRouter.post("/register", registerController);
 
-userRouter.post("/login", authUser, loginController);
+userRouter.post("/login", loginLimiter, authUser, loginController);
 
 userRouter.post("/forget-password", authUser, forgetPasswordController);
 

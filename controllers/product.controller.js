@@ -1,4 +1,5 @@
 import express from 'express'
+import redisClient from '../config/redisClient.js';
 import Product from "../models/productModel.js";
 import Order from "../models/ordersModel.js";
 import Cart from "../models/userCartModel.js";
@@ -32,6 +33,7 @@ const razorpay = new Razorpay({
 
 
 export const updateProductRoute = async (req, res) => {
+  await redisClient.del('all_products');
   try {
     const id = req.params.id;
     const product = await Product.findById(id);
@@ -46,26 +48,66 @@ export const showAllProductsController = async (req, res) => {
   const { role } = req.user;
 
   try {
-    // console.log(__dirname);
-    // const user = await User.find()
+    const cacheKey = 'all_products';
+
+    // 1. Check Redis cache
+    const cachedProducts = await redisClient.get(cacheKey);
+
+    if (cachedProducts) {
+      console.log("Products fetched from Redis");
+
+      res.setHeader('X-Cache', 'HIT');
+
+      return res.status(200).render("products", {
+        success: true,
+        isAdmin: role === "admin",
+        products: JSON.parse(cachedProducts),
+      });
+    }
+
+    // 2. Fetch products from MongoDB
+    console.log("Products fetched from MongoDB");
+
     const products = await Product.find().lean();
-    // console.log(products);
-    // console.log("Hello");
-    res.status(200).render("products", {
+
+    // 3. Store products in Redis (TTL = 10 minutes)
+    const result = await redisClient.set(
+      cacheKey,
+      JSON.stringify(products),
+      {
+        EX: 600,
+      }
+    );
+
+   console.log("Redis SET result:", result);
+
+// Verify Redis data
+const cachedData = await redisClient.get('all_products');
+
+console.log("Redis data exists:", !!cachedData);
+    
+
+    res.setHeader('X-Cache', 'MISS');
+
+    // 4. Render products
+    return res.status(200).render("products", {
       success: true,
-      isAdmin: role == "admin",
-      products: products,
+      isAdmin: role === "admin",
+      products,
     });
+
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({
+    console.error("Show All Products Error:", error);
+
+    return res.status(500).json({
       success: false,
-      message: "Bad Request",
+      message: "Internal Server Error",
     });
   }
 };
 
 export const addProductController = async (req, res) => {
+  await redisClient.del('all_products');
   try {
     const { role } = req.user;
     const { name, type, price } = req.body;
@@ -97,7 +139,6 @@ export const addProductController = async (req, res) => {
         savedImageNames.push(uniqueFileName);
       }
     }
-
     const newProduct = new Product({
       name,
       type,
@@ -111,10 +152,11 @@ export const addProductController = async (req, res) => {
     return res
       .status(400)
       .render("add-product", { errorMessage: "Product Name must be Unique" });
-  }
-};
-
-export const updateProductController = async (req, res) => {
+    }
+  };
+  
+  export const updateProductController = async (req, res) => {
+  await redisClient.del('all_products');
   try {
     const { id } = req.params;
     console.log("Patch Route");
@@ -132,15 +174,16 @@ export const updateProductController = async (req, res) => {
 };
 
 export const deleteProductController = async (req, res) => {
+  await redisClient.del('all_products');
   try {
     const { id } = req.params;
-
+    
     const { name } = await Product.findOne({ _id: id });
     console.log(name);
     const deleteDir = path.join(__dirname, "../public/uploads/", name);
 
     await rm(deleteDir, { recursive: true, force: true });
-
+    
     await Product.findByIdAndDelete(id);
     return res.redirect("/products");
   } catch (error) {
@@ -220,7 +263,7 @@ export const filterByCategory = async (req, res, next) => {
     const { role } = req.user;
     type = type.toLowerCase();
 
-    console.log("filterByCategory: ",req.query.priceFilter);
+    // console.log("filterByCategory: ",req.query.priceFilter);
     
 
     let products;
@@ -276,7 +319,7 @@ export const filterByCategory = async (req, res, next) => {
       req.products = products;
       
 
-      console.log(req.products);
+      // console.log(req.products);
       
       next();
     }
@@ -293,7 +336,7 @@ export const filterByPrice = async (req, res) => {
     const { role } = req.user;
 
     const { priceFilter, searchData, type } = req.query;
-    console.log(priceFilter);
+    // console.log(priceFilter);
 
     if (priceFilter == "lowtohigh") {
       products.sort((a, b) => a.price - b.price);
@@ -401,14 +444,8 @@ export const removeItem = async (req, res) => {
         message: "Cart document not found." 
       });
     }
-
-
     return res.status(200).redirect('/cart');
     
-    
-
-    // await cartUser.save();
-    res.end();
   } catch (error) {
     console.log(error);
     res.end();

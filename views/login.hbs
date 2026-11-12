@@ -49,7 +49,7 @@
             <option value="admin">Admin</option>
           </select>
         </div>
-
+        {{btnDisabled}}
         <button class="loginBtn" type="submit">Login</button>
 
         <div class="urls">
@@ -58,5 +58,15 @@
         </div>
       </form>
     </div>
+
+    <script>
+  const loginBtn = document.querySelector(".loginBtn");
+
+  {{#if btnDisabled}}
+    loginBtn.disabled = true;
+  {{else}}
+    loginBtn.disabled = false;
+  {{/if}}
+</script>
   </body>
 </html>
