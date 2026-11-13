@@ -50,7 +50,6 @@ export const showAllProductsController = async (req, res) => {
   try {
     const cacheKey = 'all_products';
 
-    // 1. Check Redis cache
     const cachedProducts = await redisClient.get(cacheKey);
 
     if (cachedProducts) {
@@ -70,7 +69,7 @@ export const showAllProductsController = async (req, res) => {
 
     const products = await Product.find().lean();
 
-    // 3. Store products in Redis (TTL = 10 minutes)
+
     const result = await redisClient.set(
       cacheKey,
       JSON.stringify(products),
@@ -81,7 +80,6 @@ export const showAllProductsController = async (req, res) => {
 
    console.log("Redis SET result:", result);
 
-// Verify Redis data
 const cachedData = await redisClient.get('all_products');
 
 console.log("Redis data exists:", !!cachedData);
@@ -89,7 +87,6 @@ console.log("Redis data exists:", !!cachedData);
 
     res.setHeader('X-Cache', 'MISS');
 
-    // 4. Render products
     return res.status(200).render("products", {
       success: true,
       isAdmin: role === "admin",
@@ -97,13 +94,8 @@ console.log("Redis data exists:", !!cachedData);
     });
 
   } catch (error) {
-    console.error("Show All Products Error:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
-  }
+  next(error);
+}
 };
 
 export const addProductController = async (req, res) => {
@@ -165,12 +157,8 @@ export const addProductController = async (req, res) => {
     await Product.findByIdAndUpdate(id, { ...updateProduct });
     return res.redirect("/products");
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({
-      success: false,
-      message: "Bad Request",
-    });
-  }
+    next(error);
+}
 };
 
 export const deleteProductController = async (req, res) => {
@@ -187,12 +175,8 @@ export const deleteProductController = async (req, res) => {
     await Product.findByIdAndDelete(id);
     return res.redirect("/products");
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({
-      success: false,
-      message: "Bad Request",
-    });
-  }
+  next(error);
+}
 };
 
 export const getSingleProduct = async (req, res) => {
@@ -249,12 +233,8 @@ export const filterProductByName = async (req, res) => {
       searchData
     });
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({
-      success: false,
-      message: "Bad Request",
-    });
-  }
+  next(error);
+}
 };
 
 export const filterByCategory = async (req, res, next) => {
@@ -324,9 +304,8 @@ export const filterByCategory = async (req, res, next) => {
       next();
     }
   } catch (error) {
-    console.log("filterCategory: ", error);
-    return res.end();
-  }
+  next(error);
+}
 };
 
 export const filterByPrice = async (req, res) => {
@@ -353,9 +332,8 @@ export const filterByPrice = async (req, res) => {
       priceFilter
     });
   } catch (error) {
-    console.log("filterCategory: ", error);
-    return res.end();
-  }
+    next(error);
+}
 };
 
 export const addToCart = async (req, res) => {
@@ -384,9 +362,8 @@ export const addToCart = async (req, res) => {
 
     return res.status(200).redirect('/cart');
   } catch (error) {
-    console.error(error);
-    return res.status(500).send("Server Error");
-  }
+  next(error);
+}
 
 }
 
@@ -411,9 +388,8 @@ export const getCart = async (req, res) => {
     });
 
   } catch (error) {
-    console.log(error);
-    return res.end();
-  }
+  next(error);
+}
 }
 
 export const removeItem = async (req, res) => {
@@ -447,10 +423,8 @@ export const removeItem = async (req, res) => {
     return res.status(200).redirect('/cart');
     
   } catch (error) {
-    console.log(error);
-    res.end();
-
-  }
+  next(error);
+}
 
 }
 
@@ -494,9 +468,8 @@ export const updateItemQuantity = async (req, res) => {
 
     return res.redirect('/cart');
   } catch (error) {
-    console.error("Update quantity error:", error);
-    return res.status(500).json({ success: false, message: "Server Error" });
-  }
+  next(error);
+}
 };
 
 // export const getOrdersController = async (req, res) => {
@@ -533,9 +506,8 @@ export const createRazorpayOrder = async (req, res) => {
     
     return res.status(200).json(order);
   } catch (error) {
-    console.error("Razorpay order creation error:", error);
-    return res.status(500).json({ message: "Failed to create Razorpay order", error: error.message });
-  }
+    next(error);
+}
 };
 
 export const verifyPayment = async (req, res) => {
@@ -561,9 +533,8 @@ export const verifyPayment = async (req, res) => {
       return res.status(400).json({ status: 'failure', message: 'Invalid payment signature' });
     }
   } catch (error) {
-    console.error("Payment verification error:", error);
-    return res.status(500).json({ status: 'error', message: error.message });
-  }
+  next(error);
+}
 };
 
 
@@ -657,10 +628,8 @@ export const createOrder = async (req, res) => {
     return res.status(201).json({ message: "Order placed successfully", orderId: savedOrder._id });
 
   } catch (error) {
-    console.log(error);
-    
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
+  next(error);
+}
 };
 
 export const placedOrder = async (req, res) => {
@@ -682,10 +651,8 @@ export const placedOrder = async (req, res) => {
 
 
   } catch (error) {
-    console.error("Error fetching orders:", error.message);
-    return res.status(500).json({ message: "Server error", error: error.message });
-    
-  }
+  next(error);
+}
  
 }
 
@@ -707,15 +674,14 @@ export const allUsersOrders = async (req, res) => {
     });
 
  } catch (error) {
-  console.log(error);
-  res.end();
-  
- }
+  next(error);
+}
 }
 
 
 export const updateOrderStatus = async (req, res) => {
-  const {orderId, status } = req.query;
+  try {
+    const {orderId, status } = req.query;
 
   await Order.findOneAndUpdate({_id: orderId},
     {
@@ -725,5 +691,8 @@ export const updateOrderStatus = async (req, res) => {
   
 
   res.redirect('/admin/orders');
+  } catch (error) {
+    next(error);
+  }
   
 }

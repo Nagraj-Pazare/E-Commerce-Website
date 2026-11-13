@@ -65,6 +65,21 @@ app.use((req, res, next) => {
     errorMessage: "We couldn't find the page you were looking for."
   });
 });
+
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  const statusCode = err.statusCode || 500;
+
+  res.status(statusCode).json({
+    success: false,
+    message: err.message || "Something went wrong",
+    error: process.env.NODE_ENV === "production"
+      ? undefined
+      : err.stack,
+  });
+});
+
 hbs.registerHelper('json', function (context) {
     return JSON.stringify(context);
 });

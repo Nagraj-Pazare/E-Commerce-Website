@@ -1,4 +1,5 @@
 import refreshTokenModel from "../models/refreshTokenModel.js";
+import redisClient from '../config/redisClient.js';
 import bcrypt from "bcrypt";
 import User from "../models/userModel.js";
 import Product from "../models/productModel.js";
@@ -34,11 +35,6 @@ export const registerController = async (req, res) => {
     console.log(req.body);
     const { username, role, email, password } = req.body;
 
-    if (!username?.trim() || !role?.trim() || !email?.trim() || !password?.trim()) {
-      return res.status(400).render('register', {errorMessage:"All fields are required."});
-    }
-
-
     const hashPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       username: username,
@@ -64,11 +60,7 @@ export const loginController = async (req, res) => {
 
     const { email, password, role } = req.body;
     const user = req.user;
-
-
-    if (!role?.trim() || !email?.trim() || !password?.trim()) {
-      return res.status(400).render('login', {errorMessage:"All fields are required."});
-    }
+    console.log(user);
 
     const isPassMatch = await bcrypt.compare(password, user.password);
     if (isPassMatch && user.role == role) {
@@ -275,32 +267,57 @@ export const getAllUsersController =  async (req, res)=>{
 };
 
 export const adminDashboard = async (req, res) => {
-  
   try {
     const { role } = req.user;
+    const cacheKey = 'admin_dashboard_counts';
 
+    
+    const cachedData = await redisClient.get(cacheKey);
 
-  const users = User.find();
-  const userCount = await users.countDocuments({})
-  const products = Product.find();
-  const productCount = await products.countDocuments({})
-  const orders = Order.find();
-  const orderCount = await orders.countDocuments({})
-  
-  return res.render('admin-dashboard',
-    {
+    if (cachedData) {
+      console.log("Dashboard counts fetched from Redis");
+      res.setHeader('X-Cache', 'HIT');
+
+      const { userCount, productCount, orderCount } = JSON.parse(cachedData);
+
+      return res.render('admin-dashboard', {
+        userCount,
+        productCount,
+        orderCount,
+        isAdmin: role === 'admin'
+      });
+    }
+
+    
+    const [userCount, productCount, orderCount] = await Promise.all([
+      User.countDocuments({}),
+      Product.countDocuments({}),
+      Order.countDocuments({})
+    ]);
+
+   
+    await redisClient.setEx(
+      cacheKey,
+      60,
+      JSON.stringify({ userCount, productCount, orderCount })
+    );
+
+    console.log("Dashboard counts fetched from MongoDB");
+    res.setHeader('X-Cache', 'MISS');
+
+    return res.render('admin-dashboard', {
       userCount,
       productCount,
       orderCount,
-      isAdmin: role=='admin'
-    }
-  );
+      isAdmin: role === 'admin'
+    });
+
   } catch (error) {
-     console.log(error);
-      return res.alert("Error Occurred : ", error);
+    console.error("Admin Dashboard Error:", error);
+    return res.status(500).send("Internal Server Error");
   }
-  
-}
+};
+
 
 export const deleteUserController = async (req, res) => {
     try {

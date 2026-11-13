@@ -11,9 +11,8 @@ export const getUserAddresses = async (req, res, next) => {
     // });
     next();
   } catch (error) {
-    console.error("Error fetching addresses:", error);
-    return res.status(500).json({ success: false, message: "Server Error" });
-  }
+  next(error);
+}
 };
 
 export const addAddress = async (req, res) => {
@@ -49,11 +48,8 @@ export const addAddress = async (req, res) => {
 
     return res.status(201).redirect(redirectTo);
   } catch (error) {
-    console.error("Error saving address:", error);
-    return res
-      .status(400)
-      .json({ success: false, message: "Failed to save address" });
-  }
+  next(error);
+}
 };
 
 export const changeDefaultAddress = async (req, res) => {
@@ -68,8 +64,8 @@ export const changeDefaultAddress = async (req, res) => {
     return res.status(201).redirect("/profile");
     // return res.render('profile');
   } catch (error) {
-    console.log(error);
-  }
+  next(error);
+}
 };
 
 export const editAddress = async (req, res) => {
@@ -84,11 +80,8 @@ export const editAddress = async (req, res) => {
       redirectTo
     });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      "error message": error,
-    });
-  }
+  next(error);
+}
 };
 
 export const updateAddress = async (req, res) => {
@@ -114,11 +107,7 @@ try {
     
   return res.status(200).redirect(redirectTo);
 } catch (error) {
-  console.log(error);
-  return res.status(500).json({
-    "error message": error,
-  })
-  
+  next(error);
 }
   
 };
@@ -130,9 +119,6 @@ export const deleteAddress = async (req, res) => {
     await Address.findByIdAndDelete({_id: addressId });
     return res.redirect('/profile');
   } catch (error) {
-    console.log(error);
-    return res.render('profile', {
-      errorMessage: "Cant Find Address"
-    })
-  }
+  next(error);
+}
 } 

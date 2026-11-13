@@ -7,7 +7,7 @@
   </head>
   <body>
     <div class="form-container">
-      <form action="login" method="POST">
+      <form action="login" method="POST" autocomplete="off">
         <a href="/" style="text-decoration: none;"><button
             id="homeBtn"
             type="button"
@@ -16,6 +16,7 @@
         {{#if errorMessage}}
           <p style="color: red; font-weight: bold;">{{errorMessage}}</p>
         {{/if}}
+        <p id="attempts"></p>
         <div>
           <label for="email">Email</label>
           <input
@@ -24,6 +25,7 @@
             id="email"
             value="{{email}}"
             required
+            autocomplete="off"
             placeholder="name@example.com"
             pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
             title="Please enter a valid email address (e.g., name@domain.com)"
@@ -49,8 +51,12 @@
             <option value="admin">Admin</option>
           </select>
         </div>
-        {{btnDisabled}}
-        <button class="loginBtn" type="submit">Login</button>
+        {{#if btnDisabled}}
+        <button class="loginBtn" type="submit" disabled style="cursor: not-allowed;">Login</button>
+        {{/if}}
+        {{#unless btnDisabled}}
+        <button class="loginBtn" type="submit" onclick="handleAttempt(event)">Login</button>
+        {{/unless}}
 
         <div class="urls">
           <a href="/forget-password">Forgot password?</a>
@@ -59,14 +65,5 @@
       </form>
     </div>
 
-    <script>
-  const loginBtn = document.querySelector(".loginBtn");
-
-  {{#if btnDisabled}}
-    loginBtn.disabled = true;
-  {{else}}
-    loginBtn.disabled = false;
-  {{/if}}
-</script>
   </body>
 </html>

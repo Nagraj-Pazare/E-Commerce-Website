@@ -2,6 +2,12 @@ import express from "express";
 import authUser from "../middleware/authUser.js";
 import authAdmin from "../middleware/authAdmin.js";
 import authToken from "../middleware/authToken.js";
+import { validate } from "../middleware/validate.js";
+import {
+  registerSchema,
+  loginSchema,
+  resetPasswordSchema,
+} from "../validators/userValidator.js";
 import { loginLimiter } from '../middleware/rateLimiter.js'
 import { isLoggedOut } from "../middleware/isLoggedOut.js";
 import User from "../models/userModel.js";
@@ -28,15 +34,15 @@ userRouter.get("/", isLoggedOut, (req, res) => {
   return res.render("home");
 });
 
-userRouter.post("/register", registerController);
+userRouter.post("/register", validate(registerSchema), registerController);
 
-userRouter.post("/login", loginLimiter, authUser, loginController);
+userRouter.post("/login", loginLimiter, authUser,  validate(loginSchema), loginController);
 
 userRouter.post("/forget-password", authUser, forgetPasswordController);
 
 userRouter.post("/verify-reset-otp", authUser, verifyResetOtpController);
 
-userRouter.post("/reset-password", resetPasswordController);
+userRouter.post("/reset-password", validate(resetPasswordSchema), resetPasswordController);
 
 userRouter.get("/login", isLoggedOut, (req, res) => {
   res.clearCookie("accessToken", {
