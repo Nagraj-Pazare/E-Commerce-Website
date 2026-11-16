@@ -132,7 +132,15 @@
             if (checkoutBtn) checkoutBtn.disabled = true;
 
             try {
-                // 2. Request a Razorpay order from your server
+
+                // 2. Format cart items for final order placement after success
+                const formattedItems = cartItems.map(cartItem => ({
+                    product: typeof cartItem.productId === 'object' ? cartItem.productId._id : cartItem.productId, 
+                    quantity: cartItem.quantity
+                }));
+
+                
+                // 3. Request a Razorpay order from your server
                 const orderResponse = await fetch('/create-order', {
                     method: 'POST',
                     headers: {
@@ -142,7 +150,8 @@
                     body: JSON.stringify({ 
                         amount: totalPrice, 
                         currency: 'INR', 
-                        receipt: 'receipt_' + Date.now() 
+                        receipt: 'receipt_' + Date.now() ,
+                        items: formattedItems,
                     })
                 });
 
@@ -151,12 +160,6 @@
                 if (!orderResponse.ok) {
                     throw new Error(razorpayOrder.message || "Failed to create payment order");
                 }
-
-                // 3. Format cart items for final order placement after success
-                const formattedItems = cartItems.map(cartItem => ({
-                    product: typeof cartItem.productId === 'object' ? cartItem.productId._id : cartItem.productId, 
-                    quantity: cartItem.quantity
-                }));
 
                 // 4. Open Razorpay Checkout Modal
                 const options = {

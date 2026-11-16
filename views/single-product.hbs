@@ -50,6 +50,11 @@
         <div class="product-details">
             <span class="detail-badge">{{product.type}}</span>
             <h1>{{product.name}}</h1>
+            {{#if product.stocks}}
+            <p style="color: blue; font-size: large; font-weight: 600;">Available: {{product.stocks}}</p>
+            {{else}}
+            <p style="color: red; font-size: large; font-weight: 600;">Out Of Stocks</p>
+            {{/if}}
             
             <div class="detail-price">
                 <span class="currency"></span>₹ {{product.price}}
@@ -71,8 +76,12 @@
                     <button type="button" class="qty-btn" onclick="incrementQuantity()">+</button>
                 </div>
                 <input type="number" name="quantity" id="quantity" hidden value="1">
-
+                
+                {{#if product.stocks}}
                 <button type="submit" class="btn-add-cart">🛒 Add To Cart</button>
+                {{else}}
+                <button type="submit" class="btn-add-cart" disabled style="cursor: not-allowed;">🛒 Add To Cart</button>
+                {{/if}}
             </form>
         </div>
     </main>

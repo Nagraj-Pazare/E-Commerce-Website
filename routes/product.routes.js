@@ -1,6 +1,8 @@
 import express from "express";
 import authToken from "../middleware/authToken.js";
 import authAdmin from "../middleware/authAdmin.js";
+import { validate } from "../middleware/validate.js";
+import { addProductSchema, updateProductSchema } from '../validators/productValidator.js'
 import {
   updateProductRoute,
   filterProductByName,
@@ -30,7 +32,6 @@ const productRouter = express.Router();
 productRouter.use(attachProductTypes);
 
 productRouter.get("/products", authToken, showAllProductsController);
-productRouter.post("/products", authToken, authAdmin, addProductController);
 productRouter.get("/add-product", authToken, (req, res) => {
   return res.render("add-product");
 });
@@ -48,11 +49,9 @@ productRouter.get("/remove-item", authToken, removeItem);
 
 productRouter.get("/update-quantity", authToken, updateItemQuantity);
 
+productRouter.get("/products/:id", authToken, getSingleProduct);
 // productRouter.get('/admin/orders', authToken, authAdmin, getOrdersController)
 
-productRouter.post("/create-order", authToken, createRazorpayOrder);
-productRouter.post("/verify-payment", authToken, verifyPayment);
-productRouter.post("/checkout", authToken, createOrder);
 
 productRouter.get("/placed-orders", authToken, placedOrder);
 
@@ -65,11 +64,16 @@ productRouter.get(
   updateOrderStatus,
 );
 
+productRouter.post("/products", authToken, authAdmin, validate(addProductSchema), addProductController);
+productRouter.post("/create-order", authToken, createRazorpayOrder);
+productRouter.post("/verify-payment", authToken, verifyPayment);
+productRouter.post("/checkout", authToken, createOrder);
 
 productRouter.patch(
   "/products/:id",
   authToken,
   authAdmin,
+  validate(updateProductSchema),
   updateProductController,
   
 );
@@ -79,6 +83,5 @@ productRouter.delete(
   authAdmin,
   deleteProductController,
 );
-productRouter.get("/products/:id", authToken, getSingleProduct);
 
 export default productRouter;

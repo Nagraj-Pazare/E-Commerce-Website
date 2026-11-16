@@ -117,6 +117,9 @@
           <div class="product-card-body">
             <span class="type-badge">{{this.type}}</span>
             <h3>{{this.name}}</h3>
+            {{#if ../isAdmin}}
+            <p style="padding-bottom: 5px;">Available Stock: {{this.stocks}}</p>
+            {{/if}}
             <div class="product-price">₹ {{this.price}}</div>
 
             <!-- Product Action Buttons -->

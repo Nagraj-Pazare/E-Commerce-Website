@@ -15,9 +15,9 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-section-label">Navigation</div>
-            <a href="admin-dashboard">Admin Dashboard</a>
-            <a href="products">View All Products</a>
-            <a href="users">View All Users</a>
+            <a href="/admin-dashboard">Admin Dashboard</a>
+            <a href="/products">View All Products</a>
+            <a href="/users">View All Users</a>
 
             <!-- Logout Form -->
             <form action="logout" method="get" class="logout-form">
@@ -45,18 +45,23 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="name">Name</label>
-                                <input type="text" name="name" id="name" value="{{product.name}}" required disabled>
+                                <input type="text" name="name" id="name" value="{{product.name}}" required disabled style="cursor: not-allowed;">
                             </div>
 
                             <div class="form-group">
                                 <label for="type">Type</label>
-                                <input type="text" name="type" id="type" value="{{product.type}}" required disabled>
+                                <input type="text" name="type" id="type" value="{{product.type}}" required disabled style="cursor: not-allowed;">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="price">Price</label>
-                            <input type="number" name="price" id="price" value="{{product.price}}" required>
+                            <input type="number" name="price" id="price" value="{{product.price}}" min="1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stocks">Stock</label>
+                            <input type="number" name="stocks" id="stocks" value="{{product.stocks}}" min="1" required>
                         </div>
 
                         <div class="form-actions">

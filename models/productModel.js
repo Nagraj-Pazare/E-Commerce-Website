@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { required } from 'zod/mini';
 
 const productSchema = new mongoose.Schema({
     name:{
@@ -17,6 +18,10 @@ const productSchema = new mongoose.Schema({
     },
     images:{
         type: Array,
+    },
+    stocks: {
+        type: Number,
+        required: true,
     }
 });
 

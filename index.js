@@ -6,6 +6,7 @@ import refreshTokenModel from "./models/refreshTokenModel.js";
 import Product from "./models/productModel.js";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import './services/BullMQ/workers/emailWorker.js'
 import nodemailer from "nodemailer";
 import authToken from "./middleware/authToken.js";
 import authUser from "./middleware/authUser.js";
