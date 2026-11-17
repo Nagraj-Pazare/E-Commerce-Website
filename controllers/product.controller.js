@@ -356,15 +356,18 @@ export const getCart = async (req, res, next) => {
   try {
     const { userId } = req.user;
     const cart = await Cart.findOne({ userId }).populate("items.productId");
-    //  console.log(cart);
-    const cartItems = cart ? cart.items : [];
-    //  console.log(cartItems);
+    // console.log(cart);
+    let cartItems = cart ? cart.items : [];
+    // console.log(cartItems);
 
-    const addresses = await Address.find({ userId }).sort({ isDefault: -1 });
     if (!cartItems) {
       return res.redirect("/products");
     }
 
+    cartItems = cartItems.filter(cartItem => cartItem.productId!==null);
+    
+    const addresses = await Address.find({ userId }).sort({ isDefault: -1 });
+    
     return res.status(200).render("cart", {
       success: true,
       cartItems,
@@ -498,6 +501,7 @@ export const createRazorpayOrder = async (req, res, next) => {
 };
 
 export const verifyPayment = async (req, res, next) => {
+  await redisClient.del("placedOrders");
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
       req.body;

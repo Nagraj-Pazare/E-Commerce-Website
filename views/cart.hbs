@@ -41,6 +41,13 @@
                     <h3>{{this.productId.name}}</h3>
                     <span class="item-type">{{this.productId.type}}</span>
                     <div class="item-price">₹{{this.productId.price}}</div>
+                    {{#ifCond this.productId.stocks '===' 0}}
+                    <p style="font-size: 1.3em; font-weight: 700; color: red;">Out of Stocks</p>
+                    {{/ifCond}}
+                    {{#ifCond this.quantity '>' this.productId.stocks}}
+                        <p style="color: rgb(33, 233, 33); font-size: 1.1em; font-weight: 600;">Only {{this.productId.stocks}} piece Available</p>
+                    {{/ifCond}}
+
                 </div>
 
                 <div class="qty-controls">

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Chat</title>
+    <link rel="stylesheet" href="/styles/user-chat.css">
+</head>
+<body>
+    <nav>
+    <button class="menu-btn" onclick="handleMenu()">☰</button>
+    <a href="/products" class="logo">Logo</a>
+
+    {{#unless isAdmin}}
+    <div class="nav-links">
+      <a href="/cart" class="cart-btn">Cart 🛒</a>
+      <a href="/profile" class="nav-btn profile-link" ><button style="border-radius: 50%;">👤</button><span>Profile</span></a>
+    </div>
+      {{/unless}}
+  </nav>
+    <div class="chat-wrapper">
+        <div class="chat-container">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="header-info">
+                    <h2>Live Support</h2>
+                    <p>We typically reply within a few minutes</p>
+                </div>
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span>
+                    <span>Online</span>
+                </div>
+            </div>
+
+            <!-- Messages Box -->
+            <div id="chat-box" class="chat-box">
+                {{#if messages}}
+                {{#each messages}}
+                    <div class="message-row {{this.senderRole}}" data-role="{{this.senderRole}}">
+                        <div class="avatar">{{this.senderName.[0]}}</div>
+                        <div class="message-bubble-group">
+                            <span class="sender-label">{{this.senderName}}</span>
+                            <div class="bubble">{{this.text}}</div>
+                        </div>
+                    </div>
+                {{/each}}
+                {{/if}}
+            </div>
+
+            <!-- Hidden User Data -->
+            <div id="user-data" data-id="{{user._id}}" data-username="{{user.username}}" hidden></div>
+
+            <!-- Chat Input Form -->
+            <form id="chat-form" class="chat-form">
+                <input type="text" id="msg-input" placeholder="Type your message here..." autocomplete="off" required />
+                <button type="submit" id="send-btn" title="Send message">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const userEl = document.getElementById('user-data');
+        const userId = userEl.dataset.id;
+        const userName = userEl.dataset.username;
+
+        const chatBox = document.getElementById("chat-box");
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        socket.emit("join_chat", { userId });
+
+        document.getElementById("chat-form").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const input = document.getElementById("msg-input");
+            const text = input.value.trim();
+            if (!text) return;
+
+            socket.emit("send_message", {
+                userId,
+                senderRole: "user",
+                senderName: userName,
+                message: text
+            });
+            input.value = "";
+        });
+
+        socket.on("receive_message", (msg) => {
+            const isUser = msg.senderRole === "user";
+            const initial = msg.senderName ? msg.senderName.charAt(0).toUpperCase() : "?";
+            
+            const messageRow = document.createElement("div");
+            messageRow.className = `message-row ${msg.senderRole}`;
+            messageRow.setAttribute("data-role", msg.senderRole);
+
+            messageRow.innerHTML = `
+                <div class="avatar">${initial}</div>
+                <div class="message-bubble-group">
+                    <span class="sender-label">${msg.senderName}</span>
+                    <div class="bubble">${msg.text}</div>
+                </div>
+            `;
+
+            chatBox.appendChild(messageRow);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    </script>
+</body>
+</html>

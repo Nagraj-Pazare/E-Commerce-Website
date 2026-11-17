@@ -42,7 +42,11 @@
       <a href="add-product" class="sidebar-link">+ Add Product</a>
       <a href="users" class="sidebar-link">View All Users</a>
       <a href="admin/orders">View All Orders</a>
+      <a href="admin-chat">Customer Concerns 👤</a>
       {{/if}}
+      {{#unless isAdmin}}
+      <a href="user-chat">Customer Care 📞</a>
+      {{/unless}}
 
       <!-- Filter Card -->
       <div class="filter-card">
@@ -83,6 +87,7 @@
       <form action="logout" method="get" class="logout-form">
         <button type="submit" class="logout-btn">Logout</button>
       </form>
+     
     </aside>
 
     <!-- Main Content Grid -->

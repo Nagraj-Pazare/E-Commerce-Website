@@ -27,6 +27,7 @@ import {
 } from "../controllers/user.controller.js";
 
 import {addAddress, getUserAddresses, changeDefaultAddress, editAddress, updateAddress, deleteAddress } from '../controllers/address.controller.js'
+import Message from "../models/messageModel.js";
 
 const userRouter = express.Router();
 
@@ -94,6 +95,51 @@ userRouter.get("/add-address-form", authToken, async (req, res) => {
     redirectTo
   });
   
+});
+
+userRouter.get("/user-chat", authToken, async (req, res) => {
+  const { userId } = req.user;
+
+  const user = await User.findOne({_id: userId}).lean();
+  const messages = await Message.findOne({userId}).lean();
+  // console.log(messages);
+  
+  
+  return res.render('user-chat', {
+    user,
+    messages: messages ? messages.messages : [],
+  });
+})
+
+userRouter.get("/admin-chat", authToken, authAdmin, async (req, res) => {
+  // 1. Find only threads that have at least 1 message, sorted newest first
+  const threads = await Message.find({ "messages.0": { $exists: true } })
+    .sort({ updatedAt: -1 })
+    .populate({
+      path: "userId",
+      select: "_id username email role", // Excludes password safely
+    })
+    .lean();
+
+  // 2. Extract the user objects and convert _id to a string for Handlebars
+  const users = threads
+    .filter((thread) => thread.userId)
+    .map((thread) => ({
+      ...thread.userId,
+      _id: thread.userId._id.toString(),
+      lastMessageAt: thread.updatedAt,
+    }));
+
+  return res.render("admin-chat", {
+    users,
+  });
+});
+
+
+userRouter.get("/admin-chat/messages/:userId", authToken, authAdmin, async (req, res) => {
+  const { userId } = req.params;
+  const chat = await Message.findOne({ userId }).lean();
+  return res.json(chat ? chat.messages : []);
 });
 
 userRouter.post("/change-default-address", authToken, changeDefaultAddress);

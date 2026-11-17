@@ -1,6 +1,8 @@
 import express from "express";
 import "dotenv/config";
 import User from "./models/userModel.js";
+import http from "http";
+import { initSocket } from "./services/socket/chatSocket.js";
 import Otp from "./models/otpModel.js";
 import refreshTokenModel from "./models/refreshTokenModel.js";
 import Product from "./models/productModel.js";
@@ -36,6 +38,7 @@ import hbs from 'hbs'
 
 
 const app = express();
+const server = http.createServer(app);
 app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -87,7 +90,35 @@ hbs.registerHelper('json', function (context) {
 hbs.registerHelper('toLowerCase', function (str) {
   return str ? str.toLowerCase() : '';
 });
+
+hbs.registerHelper('ifCond', function (v1, operator, v2, options) {
+  switch (operator) {
+    case '==':
+      return (v1 == v2) ? options.fn(this) : options.inverse(this);
+    case '===':
+      return (v1 === v2) ? options.fn(this) : options.inverse(this);
+    case '!=':
+      return (v1 != v2) ? options.fn(this) : options.inverse(this);
+    case '!==':
+      return (v1 !== v2) ? options.fn(this) : options.inverse(this);
+    case '<':
+      return (v1 < v2) ? options.fn(this) : options.inverse(this);
+    case '<=':
+      return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+    case '>':
+      return (v1 > v2) ? options.fn(this) : options.inverse(this);
+    case '>=':
+      return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+    case '&&':
+      return (v1 && v2) ? options.fn(this) : options.inverse(this);
+    case '||':
+      return (v1 || v2) ? options.fn(this) : options.inverse(this);
+    default:
+      return options.inverse(this);
+  }
+});
 connectToDB();
+initSocket(server);
 
 
 
@@ -95,6 +126,6 @@ connectToDB();
 
 
 
-app.listen(3000, () => {
+server.listen(3000, () => {
   console.log("Server is running on 3000 port");
 });

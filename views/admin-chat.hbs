@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Support Dashboard - Analogue IT Solution</title>
+    <link rel="stylesheet" href="/styles/admin-chat.css">
+</head>
+<body>
+    <nav>
+        <a href="/products" class="logo">Admin Panel</a>
+        <ul>
+            <li>
+                <a href="/products">Home</a>
+            </li>
+        </ul>
+    </nav>
+    <div class="admin-chat-wrapper">
+        <!-- Sidebar User List -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Customers</h2>
+                <p>Select a chat to view</p>
+            </div>
+            <div class="user-list" id="user-list">
+                {{#each users}}
+                    <div class="user-item" data-userid="{{this._id}}" data-username="{{this.username}}">
+                        <div class="avatar">{{this.username.[0]}}</div>
+                        <div class="user-info">
+                            <span class="user-name">{{this.username}}</span>
+                            <span class="user-email">{{this.email}}</span>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="admin-chat-container">
+            <div class="admin-header">
+                <div class="header-title">
+                    <h2 id="active-chat-title">Select a Customer</h2>
+                    <p id="active-chat-subtitle">Choose a user from the left sidebar to start chatting</p>
+                </div>
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span>
+                    <span>Live Admin</span>
+                </div>
+            </div>
+
+            <!-- Chat Box -->
+            <div id="admin-chat-box" class="chat-box">
+                <div class="empty-state" id="empty-state">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <p>Select a customer conversation from the sidebar to view history and reply.</p>
+                </div>
+            </div>
+
+            <!-- Admin Reply Form -->
+            <form id="admin-form" class="chat-form">
+                <input type="text" id="admin-input" placeholder="Type your admin reply..." autocomplete="off" required disabled />
+                <button type="submit" id="send-btn" title="Send reply" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Required Socket.IO client library -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        const socket = io();
+        let selectedUserId = null;
+        let selectedUserName = "Customer";
+        
+        const chatBox = document.getElementById("admin-chat-box");
+        const adminInput = document.getElementById("admin-input");
+        const sendBtn = document.getElementById("send-btn");
+        const activeTitle = document.getElementById("active-chat-title");
+        const activeSubtitle = document.getElementById("active-chat-subtitle");
+        const userItems = document.querySelectorAll(".user-item");
+
+        // Click handler for user list items
+        userItems.forEach(item => {
+            item.addEventListener("click", async () => {
+                // Update active class styling in sidebar
+                userItems.forEach(u => u.classList.remove("active"));
+                item.classList.add("active");
+
+                selectedUserId = item.dataset.userid;
+                selectedUserName = item.dataset.username;
+
+                activeTitle.textContent = selectedUserName;
+                activeSubtitle.textContent = "Active conversation";
+                
+                chatBox.innerHTML = "";
+                adminInput.disabled = false;
+                sendBtn.disabled = false;
+                adminInput.focus();
+
+                socket.emit("join_chat", { userId: selectedUserId });
+
+                try {
+                    const res = await fetch(`/admin-chat/messages/${selectedUserId}`, {
+                        credentials: "same-origin"
+                    });
+
+                    if (!res.ok) {
+                        console.error("Failed to fetch messages. Status:", res.status);
+                        return;
+                    }
+
+                    const messages = await res.json();
+                    if (messages.length === 0) {
+                        chatBox.innerHTML = `<div class="empty-state"><p>No messages yet with ${selectedUserName}. Send a message to start!</p></div>`;
+                        return;
+                    }
+
+                    messages.forEach((msg) => {
+                        appendMessage(msg);
+                    });
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                } catch (err) {
+                    console.error("Error loading chat history:", err);
+                }
+            });
+        });
+
+        function appendMessage(msg) {
+            const isUser = msg.senderRole === "user";
+            const roleClass = isUser ? "user" : "admin";
+            const displayName = isUser ? selectedUserName : (msg.senderName || "Admin");
+            const initial = displayName ? displayName.charAt(0).toUpperCase() : "?";
+
+            const messageRow = document.createElement("div");
+            messageRow.className = `message-row ${roleClass}`;
+
+            messageRow.innerHTML = `
+                <div class="avatar">${initial}</div>
+                <div class="message-bubble-group">
+                    <span class="sender-label">${displayName}</span>
+                    <div class="bubble">${msg.text}</div>
+                </div>
+            `;
+            chatBox.appendChild(messageRow);
+        }
+
+        // Send admin reply
+        document.getElementById("admin-form").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const text = adminInput.value.trim();
+            if (!text || !selectedUserId) return;
+
+            socket.emit("send_message", {
+                userId: selectedUserId,
+                senderRole: "admin",
+                senderName: "Admin",
+                message: text
+            });
+            adminInput.value = "";
+        });
+
+        // Receive live messages for the active customer
+        socket.on("receive_message", (msg) => {
+            // Only append if it belongs to the currently active user conversation
+            if (msg.userId === selectedUserId || msg.senderName === selectedUserName || msg.senderRole === "admin") {
+                appendMessage(msg);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
