@@ -32,8 +32,14 @@ export const logoutController = async (req, res) => {
 
 export const registerController = async (req, res) => {
   try {
-    console.log(req.body);
-    const { username, role, email, password } = req.body;
+    // console.log(req.body);
+    const { username, role, email, password, secret } = req.body;
+
+    if(role === "admin" && secret!="abc123"){
+       return res.render("register", {
+        errorMessage: "provided secret is not found",
+       })
+    }
 
     const hashPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
@@ -57,7 +63,6 @@ export const registerController = async (req, res) => {
 export const loginController = async (req, res) => {
   try {
     // console.log(req.body);
-
     const { email, password, role } = req.body;
     const user = req.user;
     console.log(user);
@@ -247,7 +252,7 @@ export const getAllUsersController =  async (req, res)=>{
   console.log(role);
   
 
-    const users = await User.find();
+    const users = await User.find({role: "user"});
     return res.render('users', { 
       success: true,
       isAdmin: role == "admin",
@@ -384,7 +389,7 @@ export const filterUserBy = async (req, res, next) => {
   }
 };
 
-export const displayProfile = async(req, res)=>{
+export const displayProfile = async(req, res, next)=>{
   // console.log("req.addresses: ",req.addresses);
 
   if(!req.addresses){
@@ -396,7 +401,12 @@ export const displayProfile = async(req, res)=>{
  try {
   const { email } = req.user;
   const user = await User.findOne({ email });
-  // console.log("display Profile: ", user);
+  
+  if(!user){
+    return res.render('login', {
+      errorMessage: "User not found!!"
+    })
+  }
   
    return res.render('profile',
     {
@@ -407,6 +417,6 @@ export const displayProfile = async(req, res)=>{
   );
  } catch (error) {
   console.log(error);
-  res.end();
+  next(error);
  }
 }

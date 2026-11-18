@@ -5,21 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Our Store</title>
     <link rel="stylesheet" href="/styles/home.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Decorative floating blobs -->
+    <!-- Decorative floating ambient background blobs -->
     <div class="blob-1" aria-hidden="true"></div>
     <div class="blob-2" aria-hidden="true"></div>
     <div class="blob-3" aria-hidden="true"></div>
 
-    <div class="hero-container">
-        <h1>Welcome Back</h1>
-        <p>Manage your inventory and products with ease.</p>
-        
-        <div class="btn-group">
-            <a href="login" class="btn btn-primary">Login</a>
-            <a href="register" class="btn btn-secondary">Create Account</a>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <div class="hero-tag">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                Next-Gen E-Commerce & Inventory Management
+            </div>
+            <h1>Welcome Back to <span>Excellence</span></h1>
+            <p>Manage your inventory, track real-time orders, and scale your product catalog with our lightning-fast dark-mode e-commerce ecosystem.</p>
+            
+            <div class="btn-group">
+                <a href="login" class="btn btn-primary">Login</a>
+                <a href="register" class="btn btn-secondary">Create Account</a>
+            </div>
         </div>
-    </div>
+
+        <!-- Visual Feature Cards / Product Preview Showcase -->
+        <div class="hero-showcase">
+            <div class="showcase-card">
+                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80" alt="Smart Gadgets Collection">
+                <div class="showcase-content">
+                    <span class="tag">Curated Tech</span>
+                    <h3>Smart Gadgets & Hardware</h3>
+                </div>
+            </div>
+            <div class="showcase-card card-offset">
+                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80" alt="Audio & Accessories">
+                <div class="showcase-content">
+                    <span class="tag">Pro Audio</span>
+                    <h3>Immersive Sound Gear</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Grid Footer Section -->
+    <section class="features-section">
+        <div class="feature-item">
+            <div class="feature-icon">⚡</div>
+            <h4>Lightning Fast</h4>
+            <p>Optimized Handlebars rendering with smooth Razorpay integration.</p>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">🔒</div>
+            <h4>Secure Checkout</h4>
+            <p>Encrypted payment signatures and robust JWT role protection.</p>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">💬</div>
+            <h4>Live Support</h4>
+            <p>Real-time customer service channels powered by Socket.IO.</p>
+        </div>
+    </section>
 </body>
 </html>

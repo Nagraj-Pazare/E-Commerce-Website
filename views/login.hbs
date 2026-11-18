@@ -14,7 +14,13 @@
           ><span>&leftarrow;</span>Home</button></a>
         <h3>Welcome Back</h3>
         {{#if errorMessage}}
-          <p style="color: red; font-weight: bold;">{{errorMessage}}</p>
+          <p
+            style="color: red; font-weight: bold;"
+            id="errorMsg"
+          >{{errorMessage}}</p>
+        {{/if}}
+        {{#if btnDisabled}}
+          <p style="color: red; font-weight: bold;" id="timer"></p>
         {{/if}}
         <p id="attempts"></p>
         <div>
@@ -52,18 +58,51 @@
           </select>
         </div>
         {{#if btnDisabled}}
-        <button class="loginBtn" type="submit" disabled style="cursor: not-allowed;">Login</button>
+          <button
+            class="loginBtn"
+            type="submit"
+            disabled
+            style="cursor: not-allowed;"
+          >Login</button>
         {{/if}}
         {{#unless btnDisabled}}
-        <button class="loginBtn" type="submit" onclick="handleAttempt(event)">Login</button>
+          <button
+            class="loginBtn"
+            type="submit"
+            onclick="handleAttempt(event)"
+          >Login</button>
         {{/unless}}
 
         <div class="urls">
           <a href="/forget-password">Forgot password?</a>
           <a href="/register">Register</a>
         </div>
+        <hr />
+        <div>
+          <a
+            href="/auth/google"
+            style="background: #4285F4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;"
+          >
+            Sign in with Google
+          </a>
+        </div>
       </form>
     </div>
+    <script>
+      const btnDisabled =
+      {{#if btnDisabled}}true{{else}}false{{/if}}; 
+      const timer = document.getElementById("timer"); let counter = 150;
+      if(btnDisabled){
+        const interval = setInterval(()=>{ 
+        if(counter>0){
+         counter--; 
+         timer.textContent = `Login attempts Reached Try after ${counter} seconds`; 
+         } else {
+      clearInterval(interval); timer.textContent = "Refresh and Try again";
+       }
+     },1000)
+      }
 
+    </script>
   </body>
 </html>

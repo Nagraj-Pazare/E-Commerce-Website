@@ -3,6 +3,8 @@ import authUser from "../middleware/authUser.js";
 import authAdmin from "../middleware/authAdmin.js";
 import authToken from "../middleware/authToken.js";
 import { validate } from "../middleware/validate.js";
+import { generateAccessToken, generateRefreshToken } from "../controllers/token.controller.js";
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import {
   registerSchema,
   loginSchema,
@@ -28,6 +30,10 @@ import {
 
 import {addAddress, getUserAddresses, changeDefaultAddress, editAddress, updateAddress, deleteAddress } from '../controllers/address.controller.js'
 import Message from "../models/messageModel.js";
+import passport from "passport";
+import refreshTokenModel from "../models/refreshTokenModel.js";
+import { jwtDecode } from "jwt-decode";
+import { tryCatch } from "bullmq";
 
 const userRouter = express.Router();
 
@@ -74,6 +80,57 @@ userRouter.get("/verify-reset-otp", isLoggedOut, authUser, (req, res) => {
 userRouter.get("/reset-password", isLoggedOut, authUser, (req, res) => {
   return res.render("resetPassword");
 });
+
+userRouter.get('/auth/google', 
+  passport.authenticate('google', {scope: ['profile', 'email']})
+);
+
+userRouter.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: '/'}),
+  async (req, res)=>{
+    try {
+      console.log(req.user);
+    const user = req.user;
+    
+    // console.log("Google CallBack start");
+    
+        const accessToken = generateAccessToken(req.user);
+        const refreshToken = generateRefreshToken(req.user);
+
+        // console.log("Google CallBack accessToken: ", accessToken);
+        // console.log("Google CallBack refreshToken: ", refreshToken);
+        const decoded = jwtDecode(refreshToken);
+        const refreshTokenExpiryInSeconds = decoded.exp;
+
+         const newRefreshToken = new refreshTokenModel({
+                token: refreshToken,
+                uid: user._id,
+                role: user.role,
+                expiry: refreshTokenExpiryInSeconds,
+              });
+              await newRefreshToken.save();
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: "strict"
+        });
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: "strict"
+        });
+
+        
+        // console.log("Google CallBack ENd");
+        const redirectUrl = req.user.role === "admin" ? "http://localhost:3000/admin-dashboard" : "http://localhost:3000/products";
+        console.log(redirectUrl);
+        return res.redirect(redirectUrl);
+    } catch (error) {
+      console.error("Google Callback Error:", error);
+      return res.redirect('/');
+    }
+  }
+)
 
 userRouter.get("/users", authToken, authAdmin, getAllUsersController);
 

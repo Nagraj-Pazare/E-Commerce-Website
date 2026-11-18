@@ -28,21 +28,22 @@ const userSchema = new mongoose.Schema({
     match: /.+\@.+\..+/,
     validate: {
       validator: function(v) {
-        return v && v.trim().length > 0; // Fails if empty or just spaces
+        return v && v.trim().length > 0; 
       },
       message: "Email cannot be empty"
     }
   },
   password: {
     type: String,
-    required: [true, "Password is required."],
-    validate: {
-      validator: function(v) {
-        return v && v.trim().length > 0; // Fails if empty or just spaces
-      },
-      message: "Password cannot be empty"
-    }
+    required: function(){
+      return !this.googleId;
+    },
   },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true,
+  }
 });
 
 const User = mongoose.model("User", userSchema);

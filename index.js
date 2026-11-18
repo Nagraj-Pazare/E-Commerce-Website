@@ -2,6 +2,8 @@ import express from "express";
 import "dotenv/config";
 import User from "./models/userModel.js";
 import http from "http";
+import passport from "passport";
+import { configureGoogleOAuth } from "./services/OAuth/googleServices.js";
 import { initSocket } from "./services/socket/chatSocket.js";
 import Otp from "./models/otpModel.js";
 import refreshTokenModel from "./models/refreshTokenModel.js";
@@ -60,6 +62,8 @@ app.set("view engine", "hbs");
 app.get("/refresh", authRefreshToken); 
 app.use("/", userRouter);
 app.use("/", productRouter);
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.set("view options", { layout: false });
 app.use((req, res, next) => {
@@ -117,6 +121,9 @@ hbs.registerHelper('ifCond', function (v1, operator, v2, options) {
       return options.inverse(this);
   }
 });
+
+
+configureGoogleOAuth();
 connectToDB();
 initSocket(server);
 

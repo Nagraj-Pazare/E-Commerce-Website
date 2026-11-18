@@ -2,7 +2,7 @@ import Product from '../models/productModel.js'
 
 export const attachProductTypes = async (req, res, next) => {
   try {
-    const types = await Product.distinct("type");
+    const types = await Product.distinct("type").lean();
     res.locals.types = types;
     req.types = types; 
     next();

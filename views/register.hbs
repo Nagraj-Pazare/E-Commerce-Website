@@ -9,6 +9,9 @@
     <div class="form-container">
       <form action="register" method="POST">
         <h3>Create Account</h3>
+        {{#if errorMessage}}
+        <p style="font-size: large; color: red; font-weight: 600;">{{errorMessage}}</p>
+        {{/if}}
 
         <div>
           <label for="username">Username</label>
@@ -22,10 +25,21 @@
         </div>
         <div>
           <label for="role">Role</label>
-          <select name="role" id="role">
+          <select name="role" id="role" onchange="handleRegister(event)">
             <option value="user">User</option>
             <option value="admin">Admin</option>
           </select>
+        </div>
+        <div id="secret-container" style="display: none;">
+          <label for="secret">Secret Code</label>
+          <input
+            type="text"
+            name="secret"
+            id="secret"
+            placeholder="Enter Provided Code"
+            required
+            disabled
+          />
         </div>
         <div>
           <label for="email">Email</label>
@@ -60,5 +74,16 @@
         </div>
       </form>
     </div>
+
+    <script>
+      const secretContainer = document.getElementById("secret-container");
+       const secretInput = document.getElementById("secret"); 
+       const handleRegister = (e) => { 
+       const isAdmin = e.target.value == "admin";
+      secretContainer.style.display = isAdmin ? "flex" : "none";
+      secretInput.disabled = !isAdmin;
+      secretInput.required = isAdmin;
+      };
+    </script>
   </body>
 </html>
