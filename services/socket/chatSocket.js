@@ -7,7 +7,6 @@ export const initSocket = (httpServer) => {
   io.on("connection", (socket) => {
     console.log("Client connected:", socket.id);
 
-    // Join a customer's private room (and leave previous room if switching)
     socket.on("join_chat", ({ userId }) => {
       if (!userId) return;
 
@@ -19,7 +18,7 @@ export const initSocket = (httpServer) => {
       socket.currentRoom = userId;
     });
 
-    // Save message to MongoDB and broadcast to the room
+    
     socket.on("send_message", async ({ userId, senderRole, senderName, message }) => {
       if (!userId || !message?.trim()) return;
 
@@ -37,10 +36,8 @@ export const initSocket = (httpServer) => {
           { upsert: true, returnDocument: 'after' }
         );
 
-        // Broadcast live message to everyone in this user's room
         io.to(userId).emit("receive_message", newMsg);
 
-        // Notify admin dashboard if a customer sent the message
         if (senderRole === "user") {
           io.emit("new_customer_alert", {
             userId,

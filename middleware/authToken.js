@@ -2,9 +2,9 @@ import jwt from "jsonwebtoken";
 
 const authToken = (req, res, next) => {
 
-  ;
     try {
       const accessToken = req.cookies.accessToken;
+      // console.log("AuthToken accessToken: ", accessToken);
       if (!accessToken) throw new Error("No token");
       let decoded = jwt.verify(accessToken, process.env.JWT_SECRET,);
       req.user = decoded;
@@ -22,11 +22,9 @@ const authToken = (req, res, next) => {
         url: req.originalUrl,
         body: req.body
       }
-
-      return res.redirect("/refresh?redirect=" + encodeURIComponent(req.originalUrl.split('?')[0]));
     };
     // console.log(error);
-
+      
       const baseUrl = req.originalUrl.split('?')[0];
       return res.redirect(`/refresh?redirect=${encodeURIComponent(baseUrl)}`);
 

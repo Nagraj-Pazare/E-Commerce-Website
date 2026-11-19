@@ -1,39 +1,18 @@
 import express from "express";
 import "dotenv/config";
-import User from "./models/userModel.js";
 import http from "http";
 import passport from "passport";
-import { configureGoogleOAuth } from "./services/OAuth/googleServices.js";
+import { configureGoogleOAuth } from "./services/oauth/googleServices.js";
 import { initSocket } from "./services/socket/chatSocket.js";
-import Otp from "./models/otpModel.js";
-import refreshTokenModel from "./models/refreshTokenModel.js";
-import Product from "./models/productModel.js";
-import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
-import './services/BullMQ/workers/emailWorker.js'
-import nodemailer from "nodemailer";
-import authToken from "./middleware/authToken.js";
-import authUser from "./middleware/authUser.js";
-import authAdmin from "./middleware/authAdmin.js";
-import axios from "axios";
-import bcrypt from "bcrypt";
-import connectToDB from "./config/database.js";
+import './services/bullmq/workers/emailWorker.js'
 import cookieParser from "cookie-parser";
 import bodyParser from 'body-parser'
-import path from "path";
 import userRouter from "./routes/user.routes.js";
 import productRouter from "./routes/product.routes.js";
 import methodOverride from "method-override";
-import { jwtDecode } from "jwt-decode";
 import fileUpload from "express-fileupload";
 import session from "express-session";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-} from "./controllers/token.controller.js";
-
 import { authRefreshToken } from "./controllers/authToken.controller.js";
-
 import hbs from 'hbs'
 
 
@@ -122,16 +101,9 @@ hbs.registerHelper('ifCond', function (v1, operator, v2, options) {
   }
 });
 
-
 configureGoogleOAuth();
 connectToDB();
 initSocket(server);
-
-
-
-
-
-
 
 server.listen(3000, () => {
   console.log("Server is running on 3000 port");

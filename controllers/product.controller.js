@@ -14,7 +14,7 @@ import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs";
 import { rm } from "node:fs/promises";
-import { emailQueue } from "../services/BullMQ/queues/emailQueue.js";
+import { emailQueue } from "../services/bullmq/queues/emailQueue.js";
 import mongoose from "mongoose";
 
 const app = express();
@@ -44,6 +44,8 @@ export const updateProductRoute = async (req, res) => {
 };
 
 export const showAllProductsController = async (req, res, next) => {
+  console.log("Show all Products....");
+  
   const { role } = req.user;
 
   try {

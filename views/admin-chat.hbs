@@ -70,8 +70,6 @@
             </form>
         </div>
     </div>
-
-    <!-- Required Socket.IO client library -->
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
@@ -86,10 +84,10 @@
         const activeSubtitle = document.getElementById("active-chat-subtitle");
         const userItems = document.querySelectorAll(".user-item");
 
-        // Click handler for user list items
+        
         userItems.forEach(item => {
             item.addEventListener("click", async () => {
-                // Update active class styling in sidebar
+                
                 userItems.forEach(u => u.classList.remove("active"));
                 item.classList.add("active");
 
@@ -151,7 +149,6 @@
             chatBox.appendChild(messageRow);
         }
 
-        // Send admin reply
         document.getElementById("admin-form").addEventListener("submit", (e) => {
             e.preventDefault();
             const text = adminInput.value.trim();
@@ -166,9 +163,9 @@
             adminInput.value = "";
         });
 
-        // Receive live messages for the active customer
+        
         socket.on("receive_message", (msg) => {
-            // Only append if it belongs to the currently active user conversation
+            
             if (msg.userId === selectedUserId || msg.senderName === selectedUserName || msg.senderRole === "admin") {
                 appendMessage(msg);
                 chatBox.scrollTop = chatBox.scrollHeight;

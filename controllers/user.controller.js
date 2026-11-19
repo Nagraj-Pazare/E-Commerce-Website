@@ -12,6 +12,7 @@ import {
   generateRefreshToken,
 } from "../controllers/token.controller.js";
 import { jwtDecode } from "jwt-decode";
+import Message from "../models/messageModel.js";
 
 export const logoutController = async (req, res) => {
   try {
@@ -62,7 +63,7 @@ export const registerController = async (req, res) => {
 
 export const loginController = async (req, res) => {
   try {
-    // console.log(req.body);
+    console.log("Login Controller: ",req.body);
     const { email, password, role } = req.body;
     const user = req.user;
     console.log(user);
@@ -119,6 +120,109 @@ export const loginController = async (req, res) => {
     // });
   }
 };
+
+export const loginRouteController =  async (req, res) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+  });
+  return res.render("login");
+}
+
+export const googleCallbackController = async (req, res)=>{
+    try {
+    console.log(req.user);
+    const user = req.user;
+    
+    // console.log("Google CallBack start");
+    
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+
+        // console.log("Google CallBack accessToken: ", accessToken);
+        // console.log("Google CallBack refreshToken: ", refreshToken);
+        const decoded = jwtDecode(refreshToken);
+        const refreshTokenExpiryInSeconds = decoded.exp;
+
+         const newRefreshToken = new refreshTokenModel({
+                token: refreshToken,
+                uid: user._id,
+                role: user.role,
+                expiry: refreshTokenExpiryInSeconds,
+              });
+              await newRefreshToken.save();
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+        });
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+        });
+
+        
+        // console.log("Google CallBack ENd");
+        const redirectUrl = req.user.role === "admin" ? "/admin-dashboard" : "/products";
+        console.log(redirectUrl);
+        return res.redirect(redirectUrl);
+    } catch (error) {
+      console.error("Google Callback Error:", error);
+      return res.redirect('/');
+    }
+  }
+
+  export const userChatRouteController =  async (req, res) => {
+  const { userId } = req.user;
+
+  const user = await User.findOne({_id: userId}).lean();
+  const messages = await Message.findOne({userId}).lean();
+  // console.log(messages);
+  
+  
+  return res.render('user-chat', {
+    user,
+    messages: messages ? messages.messages : [],
+  });
+}
+
+export const adminChatRouteController =  async (req, res) => {
+
+  const threads = await Message.find({ "messages.0": { $exists: true } })
+    .sort({ updatedAt: -1 })
+    .populate({
+      path: "userId",
+      select: "_id username email role",
+    })
+    .lean();
+
+  
+  const users = threads
+    .filter((thread) => thread.userId)
+    .map((thread) => ({
+      ...thread.userId,
+      _id: thread.userId._id.toString(),
+      lastMessageAt: thread.updatedAt,
+    }));
+
+  return res.render("admin-chat", {
+    users,
+  });
+}
+
+export const adminSingleUserChatRoute =  async (req, res) => {
+  const { userId } = req.params;
+  const chat = await Message.findOne({ userId }).lean();
+  return res.json(chat ? chat.messages : []);
+}
+
 
 export const forgetPasswordController = async (req, res, { email }) => {
   try {

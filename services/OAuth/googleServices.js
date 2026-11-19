@@ -12,7 +12,9 @@ export const configureGoogleOAuth = () => {
     async (accessToken, refreshToken, profile, done) => {
       try {
         let user = await User.findOne({ googleId: profile.id });
-        if (user) return done(null, user);
+        if (user){
+          return done(null, user);
+        } 
 
         user = await User.findOne({ email: profile.emails[0].value });
         if (user) {
