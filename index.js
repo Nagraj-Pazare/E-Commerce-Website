@@ -14,6 +14,7 @@ import fileUpload from "express-fileupload";
 import session from "express-session";
 import { authRefreshToken } from "./controllers/authToken.controller.js";
 import hbs from 'hbs'
+import connectToDB from './config/database.js'
 
 
 
