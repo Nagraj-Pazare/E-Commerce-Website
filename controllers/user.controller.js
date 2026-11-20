@@ -24,10 +24,10 @@ export const logoutController = async (req, res) => {
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
     await refreshTokenModel.deleteMany({ uid });
-    return res.render("login", { errorMessage: "Logout Successfull" });
+    return res.status(200).render("login", { errorMessage: "Logout Successfull" });
   } catch (error) {
     // console.log(error);
-    return res.render("login", { errorMessage: "Login First" });
+    return res.status(401).render("login", { errorMessage: "Login First" });
   }
 };
 
@@ -37,7 +37,7 @@ export const registerController = async (req, res) => {
     const { username, role, email, password, secret } = req.body;
 
     if(role === "admin" && secret!="abc123"){
-       return res.render("register", {
+       return res.status(404).render("register", {
         errorMessage: "provided secret is not found",
        })
     }
@@ -50,7 +50,7 @@ export const registerController = async (req, res) => {
       password: hashPassword.toString(),
     });
     await newUser.save();
-    return res.render("login", {
+    return res.status(200).render("login", {
       errorMessage: "Account Created Successfully.\n Please Login"
     });
   } catch (error) {
@@ -106,14 +106,14 @@ export const loginController = async (req, res) => {
       //   message: "Login Success...",
       // });
     } else {
-      return res.render("login", {
+      return res.status(403).render("login", {
         errorMessage: "Enter Valid Password and Role",
       });
     }
   } catch (error) {
     console.log(error);
     // res.alert("Enter Proper Credentials")
-    return res.render("login", { errorMessage: "Enter Proper Credentials" });
+    return res.status(401).render("login", { errorMessage: "Enter Proper Credentials" });
     // return res.status(400).json({
     //   success: false,
     //   message: "Bad Request",
@@ -132,7 +132,7 @@ export const loginRouteController =  async (req, res) => {
     secure: true,
     sameSite: "strict",
   });
-  return res.render("login");
+  return res.status(200).render("login");
 }
 
 export const googleCallbackController = async (req, res)=>{
@@ -172,10 +172,10 @@ export const googleCallbackController = async (req, res)=>{
         // console.log("Google CallBack ENd");
         const redirectUrl = req.user.role === "admin" ? "/admin-dashboard" : "/products";
         console.log(redirectUrl);
-        return res.redirect(redirectUrl);
+        return res.status(200).redirect(redirectUrl);
     } catch (error) {
       console.error("Google Callback Error:", error);
-      return res.redirect('/');
+      return res.status(502).redirect('/'); //Bad Gateway->502
     }
   }
 
@@ -187,7 +187,7 @@ export const googleCallbackController = async (req, res)=>{
   // console.log(messages);
   
   
-  return res.render('user-chat', {
+  return res.status(200).render('user-chat', {
     user,
     messages: messages ? messages.messages : [],
   });
@@ -212,15 +212,19 @@ export const adminChatRouteController =  async (req, res) => {
       lastMessageAt: thread.updatedAt,
     }));
 
-  return res.render("admin-chat", {
+  return res.status(200).render("admin-chat", {
     users,
   });
 }
 
-export const adminSingleUserChatRoute =  async (req, res) => {
-  const { userId } = req.params;
+export const adminSingleUserChatRoute =  async (req, res, next) => {
+ try {
+   const { userId } = req.params;
   const chat = await Message.findOne({ userId }).lean();
-  return res.json(chat ? chat.messages : []);
+  return res.status(200).json(chat ? chat.messages : []);
+ } catch (error) {
+  next(error)
+ }
 }
 
 
@@ -262,11 +266,11 @@ export const forgetPasswordController = async (req, res, { email }) => {
             message: "Unable to send the Otp",
           });
         } else {
-          return res.render("verifyOtp");
+          return res.status(200).render("verifyOtp");
         }
       });
     } else {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: "No user found with email: " + email,
       });
@@ -290,9 +294,9 @@ export const verifyResetOtpController = async (req, res) => {
         dbOtp.isVerified = true;
         await dbOtp.save();
 
-        return res.render("resetPassword");
+        return res.status(200).render("resetPassword");
       } else {
-        return res.status(404).json({
+        return res.status(400).json({
           success: false,
           message: "Otp verification Failed...",
         });
@@ -306,12 +310,12 @@ export const verifyResetOtpController = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res
-      .status(400)
+      .status(404)
       .render("forgetPassword", { errorMessage: "OTP Expired send new One" });
   }
 };
 
-export const resetPasswordController = async (req, res) => {
+export const resetPasswordController = async (req, res, next) => {
   try {
     const { email, newPassword, confirmPassword } = req.body;
     const { isVerified } = await Otp.findOne({ email });
@@ -341,19 +345,16 @@ export const resetPasswordController = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({
-      success: false,
-      message: "Bad Request",
-    });
+   
+    next(error)
   }
 };
 
-export const getAllUsersController =  async (req, res)=>{
+export const getAllUsersController =  async (req, res, next)=>{
 
   try {
     const { role } = req.user;
-  console.log(role);
+    console.log(role);
   
 
     const users = await User.find({role: "user"});
@@ -370,12 +371,11 @@ export const getAllUsersController =  async (req, res)=>{
     //   products: products,
     // })
   } catch (error) {
-    console.log(error);
-      return res.alert("Error Occurred : ", error);
+    next(error)
   }  
 };
 
-export const adminDashboard = async (req, res) => {
+export const adminDashboard = async (req, res, next) => {
   try {
     const { role } = req.user;
     const cacheKey = 'admin_dashboard_counts';
@@ -389,7 +389,7 @@ export const adminDashboard = async (req, res) => {
 
       const { userCount, productCount, orderCount } = JSON.parse(cachedData);
 
-      return res.render('admin-dashboard', {
+      return res.status(200).render('admin-dashboard', {
         userCount,
         productCount,
         orderCount,
@@ -414,7 +414,7 @@ export const adminDashboard = async (req, res) => {
     console.log("Dashboard counts fetched from MongoDB");
     res.setHeader('X-Cache', 'MISS');
 
-    return res.render('admin-dashboard', {
+    return res.status(200).render('admin-dashboard', {
       userCount,
       productCount,
       orderCount,
@@ -422,20 +422,18 @@ export const adminDashboard = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Admin Dashboard Error:", error);
-    return res.status(500).send("Internal Server Error");
+    next(error)
   }
 };
 
 
-export const deleteUserController = async (req, res) => {
+export const deleteUserController = async (req, res, next) => {
     try {
       const { uid } = req.body;
     await User.findByIdAndDelete({_id: uid});
     return res.redirect('/users');
     } catch (error) {
-      console.log(error);
-      return res.alert("Error Occurred : ", error);
+     next(error)
       
     }
 }
@@ -463,8 +461,8 @@ export const filterUserByName = async (req, res, next) => {
     searchData
   })
   } catch (error) {
-    console.log(error);
-    return res.alert("Error Occurred: ", error);
+    
+    next(error);
   }
 
 }
@@ -488,8 +486,7 @@ export const filterUserBy = async (req, res, next) => {
       sortUserBy
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).send("Server Error");
+   next(error);
   }
 };
 
@@ -507,12 +504,12 @@ export const displayProfile = async(req, res, next)=>{
   const user = await User.findOne({ email });
   
   if(!user){
-    return res.render('login', {
+    return res.status(404).render('login', {
       errorMessage: "User not found!!"
     })
   }
   
-   return res.render('profile',
+   return res.status(200).render('profile',
     {
       addresses: req.addresses,
       user,
@@ -520,7 +517,6 @@ export const displayProfile = async(req, res, next)=>{
     }
   );
  } catch (error) {
-  console.log(error);
   next(error);
  }
 }

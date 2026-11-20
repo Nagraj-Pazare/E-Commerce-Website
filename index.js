@@ -32,7 +32,7 @@ app.use(fileUpload({
   createParentPath: true
 }));
 app.use(session({
-  secret: process.env.SESSION_SECRET || "your-secret-key",
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false }
@@ -59,7 +59,7 @@ app.use((err, req, res, next) => {
 
   const statusCode = err.statusCode || 500;
 
-  res.status(statusCode).json({
+  return res.status(statusCode).json({
     success: false,
     message: err.message || "Something went wrong",
     error: process.env.NODE_ENV === "production"

@@ -36,7 +36,7 @@ export const updateProductRoute = async (req, res) => {
   try {
     const id = req.params.id;
     const product = await Product.findById(id);
-    return res.render("update-product", { id, product });
+    return res.status(200).render("update-product", { id, product });
   } catch (error) {
     console.log(error);
     return res.render("products");
@@ -132,7 +132,7 @@ export const addProductController = async (req, res, next) => {
       stocks,
     });
     await newProduct.save();
-    return res.status(200).redirect("products");
+    return res.status(201).redirect("products");
   } catch (error) {
     console.log(error);
     return res
@@ -149,7 +149,7 @@ export const updateProductController = async (req, res, next) => {
 
     const updateProduct = req.body;
     await Product.findByIdAndUpdate(id, { ...updateProduct });
-    return res.redirect("/products");
+    return res.status(200).redirect("/products");
   } catch (error) {
     next(error);
   }
@@ -167,7 +167,7 @@ export const deleteProductController = async (req, res, next) => {
     await rm(deleteDir, { recursive: true, force: true });
 
     await Product.findByIdAndDelete(id);
-    return res.redirect("/products");
+    return res.status(200).redirect("/products");
   } catch (error) {
     next(error);
   }
@@ -187,7 +187,7 @@ export const getSingleProduct = async (req, res) => {
 
     console.log(user);
 
-    return res.render("single-product", {
+    return res.status(200).render("single-product", {
       product,
       products,
       user,
@@ -218,7 +218,7 @@ export const filterProductByName = async (req, res, next) => {
     }
 
     // console.log(products);
-    return res.render("products", {
+    return res.status(200).render("products", {
       success: true,
       isAdmin: role == "admin",
       products: products,
@@ -261,6 +261,7 @@ export const filterByCategory = async (req, res, next) => {
       //   products: products,
       // });
       req.products = products;
+      res.status(200);
 
       next();
     } else {
@@ -286,7 +287,7 @@ export const filterByCategory = async (req, res, next) => {
       //   products: products,
       // });
       req.products = products;
-
+      res.status(200)
       // console.log(req.products);
 
       next();
@@ -348,7 +349,7 @@ export const addToCart = async (req, res, next) => {
       });
     }
 
-    return res.status(200).redirect("/cart");
+    return res.status(201).redirect("/cart");
   } catch (error) {
     next(error);
   }
@@ -363,7 +364,7 @@ export const getCart = async (req, res, next) => {
     // console.log(cartItems);
 
     if (!cartItems) {
-      return res.redirect("/products");
+      return res.status(204).redirect("/products"); //204 matlab no content
     }
 
     cartItems = cartItems.filter(cartItem => cartItem.productId!==null);
@@ -449,7 +450,7 @@ export const updateItemQuantity = async (req, res, next) => {
       { $pull: { items: { quantity: { $lte: 0 } } } },
     );
 
-    return res.redirect("/cart");
+    return res.status(200).redirect("/cart");
   } catch (error) {
     next(error);
   }
@@ -788,7 +789,7 @@ export const allUsersOrders = async (req, res, next) => {
 
     //  console.log(orders[0].items[0]);
 
-    return res.render("admin-order", {
+    return res.status(200).render("admin-order", {
       orders,
     });
   } catch (error) {
@@ -811,7 +812,7 @@ export const updateOrderStatus = async (req, res, next) => {
 
     await redisClient.del(`placedOrders:${userId}`);
 
-    return res.redirect("/admin/orders");
+    return res.status(200).redirect("/admin/orders");
   } catch (error) {
     next(error);
   }

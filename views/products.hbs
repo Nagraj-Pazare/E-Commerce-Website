@@ -176,26 +176,7 @@ if (type === 'all' || type === '') {
     typeData.textContent = type.charAt(0).toUpperCase() + type.slice(1);
 }
 
-let types = {{{types}}};
-async function sendTypes(){
-  try{
-    const response = await fetch('http://localhost:3000/products', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json' 
-      },
-      body: JSON.stringify({ types: types }) 
-    });
-    
-    const data = await response.json();
-    console.log("Success:", data);
-  }
-  catch (error) {
-    console.error("Error sending array:", error);
-  }
-}
-
-  </script>
+</script>
 </body>
 
 </html>

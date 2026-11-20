@@ -6,7 +6,7 @@ import {
 } from "../controllers/token.controller.js";
 import User from "../models/userModel.js";
 
-export const authRefreshToken = async (req, res) => {
+export const authRefreshToken = async (req, res, next) => {
   try {
     res.setHeader("Refresh", "900");
 
@@ -15,7 +15,7 @@ export const authRefreshToken = async (req, res) => {
 
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      return res.redirect("/login");
+      return res.status(404).redirect("/login");
     }
     const dbRefreshToken = await refreshTokenModel.findOne({
       token: refreshToken,
@@ -24,7 +24,7 @@ export const authRefreshToken = async (req, res) => {
     if (!dbRefreshToken) {
       res.clearCookie("accessToken");
       res.clearCookie("refreshToken");
-      return res.redirect("/login");
+      return res.status(404).redirect("/login");
     }
 
     const currentTimeInSeconds = Math.floor(Date.now() / 1000);
@@ -34,7 +34,7 @@ export const authRefreshToken = async (req, res) => {
       await refreshTokenModel.deleteOne({ _id: dbRefreshToken._id });
       res.clearCookie("accessToken");
       res.clearCookie("refreshToken");
-      return res.render("login", {
+      return res.status(401).render("login", {
         errorMessage: "Refresh Token Expired Login to generate New One",
       });
     } else {

@@ -17,7 +17,6 @@ const userSchema = new mongoose.Schema({
     required: [true, "Role is required."],
     enum: {
       values: ['user', 'admin'],
-      message: '{VALUE} is not a valid role. Allowed roles are: user, admin'
     },
     default: 'user'
   },

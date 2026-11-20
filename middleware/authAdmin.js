@@ -5,7 +5,7 @@ const authAdmin = async (req, res, next)=>{
     
     try {
         const { email } = req.user;
-    const user = await User.findOne({email});
+        const user = await User.findOne({email});
     
     if(user.role == 'admin'){
         req.user = user;
@@ -14,8 +14,7 @@ const authAdmin = async (req, res, next)=>{
         res.status(401).redirect('/products');
     }
     } catch (error) {
-        console.log(error);
-        return res.alert("Auth Admin Error: ", error)
+        next(error);
         
     }
     

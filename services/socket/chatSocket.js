@@ -26,7 +26,7 @@ export const initSocket = (httpServer) => {
         senderRole,
         senderName,
         text: message.trim(),
-        createdAt: new Date(),
+        createdAt: new Date.now(),
       };
 
       try {
